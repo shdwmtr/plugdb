@@ -1,0 +1,3 @@
+[submodule "plugins/MicaForSteam"]
+	path = plugins/MicaForSteam
+	url = https://github.com/ShadowMonster99/MicaForSteam.git
