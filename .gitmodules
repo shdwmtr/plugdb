@@ -1,3 +1,6 @@
 [submodule "plugins/MicaForSteam"]
 	path = plugins/MicaForSteam
 	url = https://github.com/ShadowMonster99/MicaForSteam.git
+[submodule "plugins/steam-browser-history"]
+	path = plugins/steam-browser-history
+	url = https://github.com/ricewind012/steam-browser-history
