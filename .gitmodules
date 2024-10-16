@@ -4,3 +4,6 @@
 [submodule "plugins/steam-browser-history"]
 	path = plugins/steam-browser-history
 	url = https://github.com/ricewind012/steam-browser-history
+[submodule "plugins/adamraichu.auto-accept-custom-launch-args"]
+	path = plugins/adamraichu.auto-accept-custom-launch-args
+	url = https://github.com/AdamRaichu/auto-accept-custom-launch-args
