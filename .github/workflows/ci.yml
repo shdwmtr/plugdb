@@ -72,10 +72,11 @@ jobs:
             mv "$folder.zip" ../build/ || echo "Failed to move $folder.zip to build"
           done
 
-          ls -l ../build/
+      - name: List built plugins
+        run: ls -l build/
 
-      - name: Run Semantic Release
-        run: |
-          npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   - name: Run Semantic Release
+    #     run: |
+    #       npx semantic-release
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
