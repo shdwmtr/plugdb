@@ -69,7 +69,7 @@ jobs:
           for folder in */; do
             echo "Zipping folder: $folder"
             zip -r "$folder.zip" "$folder" || echo "Failed to zip $folder"
-            mv "$folder.zip" ../build/ || echo "Failed to move $folder.zip to build"
+            mv "$folder.zip" ../build/$folder.zip || echo "Failed to move $folder.zip to build"
           done
 
       - name: List built plugins
