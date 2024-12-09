@@ -64,11 +64,15 @@ jobs:
 
       - name: Zip folders in /dist
         run: |
+          mkdir -p build
           cd dist
           for folder in */; do
             echo "Zipping folder: $folder"
             zip -r "$folder.zip" "$folder" || echo "Failed to zip $folder"
+            mv "$folder.zip" ../build/ || echo "Failed to move $folder.zip to build"
           done
+
+          ls -l ../build/
 
       - name: Run Semantic Release
         run: |
