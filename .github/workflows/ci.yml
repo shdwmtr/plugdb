@@ -78,8 +78,8 @@ jobs:
       - name: List built plugins
         run: ls -l build/
 
-    #   - name: Run Semantic Release
-    #     run: |
-    #       npx semantic-release
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Semantic Release
+        run: |
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
