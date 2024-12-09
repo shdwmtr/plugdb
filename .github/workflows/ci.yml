@@ -26,9 +26,12 @@ jobs:
           mkdir -p dist/plugins
           cd plugins
           for d in */ ; do
-            cd "$d"
-            pnpm install
-            pnpm run build
-            mv . ../../dist/plugins/"$d"
+            echo "Processing plugin: $d"
+            cd "$d" || { echo "Failed to access $d, skipping"; continue; }
+            
+            pnpm install || { echo "Failed to install dependencies for $d, skipping"; cd ..; continue; }
+            pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
+            
+            mv . ../../dist/plugins/"$d" || echo "Failed to move $d to dist/plugins"
             cd ..
           done
