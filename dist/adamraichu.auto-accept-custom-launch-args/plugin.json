@@ -1,7 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/SteamClientHomebrew/Millennium/main/src/sys/plugin-schema.json",
-  "name": "adamraichu.auto-accept-custom-launch-args",
-  "common_name": "Auto Accept Custom Launch Arguments (v1.2.1)",
-  "description": "WARNING: This plugin affects/interferes with a feature of steam designed to keep you safe. Use at your own risk, and only if you understand what you are doing.",
-  "useBackend": false
-}
