@@ -35,6 +35,29 @@ jobs:
             
             mkdir -p ../../dist/plugins/"$d"
             mv .millennium ../../dist/plugins/"$d".millennium || echo "Failed to move $d to dist/plugins"
+
+            mv plugin.json ../../dist/plugins/"$d"plugin.json || echo "Failed to move plugin.json to dist/plugins"
+            mv requirements.txt ../../dist/plugins/"$d"requirements.txt || echo "Failed to move requirements.txt to dist/plugins"
+
+            mv README.md ../../dist/plugins/"$d"README.md || echo "Failed to move README.md to dist/plugins"
+            mv README ../../dist/plugins/"$d"README || echo "Failed to move README to dist/plugins"
+
+            # Get the backend folder from plugin.json and move it to dist/plugins
+
+            backend=$(jq -r '.backend' plugin.json)
+            if [ "$backend" != "null" ]; then
+              mv "$backend" ../../dist/plugins/"$d""$backend" || echo "Failed to move $backend to dist/plugins"
+            fi
+
+            # Get extra files from include list in plugin.json and move them to dist/plugins
+
+            include=$(jq -r '.include' plugin.json)
+            if [ "$include" != "null" ]; then
+              for file in $include; do
+                mv "$file" ../../dist/plugins/"$d""$file" || echo "Failed to move $file to dist/plugins"
+              done
+            fi
+
             cd ..
           done
 
