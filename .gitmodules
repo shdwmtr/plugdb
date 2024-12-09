@@ -7,3 +7,6 @@
 [submodule "plugins/adamraichu.auto-accept-custom-launch-args"]
 	path = plugins/adamraichu.auto-accept-custom-launch-args
 	url = https://github.com/AdamRaichu/auto-accept-custom-launch-args
+[submodule "plugins/steamdb"]
+	path = plugins/steamdb
+	url = https://github.com/tddebart/Steam-SteamDB-extension
