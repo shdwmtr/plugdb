@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install and build plugins
+        run: |
+          mkdir -p dist/plugins
+          cd plugins
+          for d in */ ; do
+            cd "$d"
+            pnpm install
+            pnpm run dev
+            mv . ../../dist/plugins/"$d"
+            cd ..
+          done
