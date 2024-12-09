@@ -18,21 +18,24 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20'
-    
+
       - name: Install pnpm
         run: npm install -g pnpm
 
       - name: Install and build plugins
         run: |
+
+          pnpm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+
           mkdir -p dist/
           cd plugins
           for d in */ ; do
             echo "Processing plugin: $d"
             cd "$d" || { echo "Failed to access $d, skipping"; continue; }
-            
+
             pnpm install || { echo "Failed to install dependencies for $d, skipping"; cd ..; continue; }
             pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
-            
+
             mkdir -p ../../dist/"$d"
             cp -r .millennium ../../dist/"$d".millennium || echo "Failed to move $d to dist"
 
@@ -43,14 +46,12 @@ jobs:
             cp README ../../dist/"$d"README || echo "Failed to move README to dist"
 
             # Get the backend folder from plugin.json and move it to dist
-
             backend=$(jq -r '.backend' plugin.json)
             if [ "$backend" != "null" ]; then
               cp -r "$backend" ../../dist/"$d""$backend" || echo "Failed to move $backend to dist"
             fi
 
             # Get extra files from include list in plugin.json and move them to dist
-
             include=$(jq -r '.include' plugin.json)
             if [ "$include" != "null" ]; then
               for file in $include; do
@@ -61,11 +62,16 @@ jobs:
             cd ..
           done
 
-    #   - name: Commit and push changes
-    #     run: |
-    #       git config --global user.name "GitHub Actions"
-    #       git config --global user.email "actions@github.com"
-    #       cd dist
-    #       git add .
-    #       git commit -m "Update built plugins"
-    #       git push origin HEAD || echo "No changes to push"
+      - name: Zip folders in /dist
+        run: |
+          cd dist
+          for folder in */; do
+            echo "Zipping folder: $folder"
+            zip -r "$folder.zip" "$folder" || echo "Failed to zip $folder"
+          done
+
+      - name: Run Semantic Release
+        run: |
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
