@@ -9,8 +9,8 @@
       "path": "@semantic-release/github",
       "assets": [
         {
-          "path": "dist/*.zip",
-          "label": "Plugin Dist ZIPs"
+            "path": "dist/**/*.zip",
+            "label": "Plugin Dist ZIPs"
         }
       ]
     }
