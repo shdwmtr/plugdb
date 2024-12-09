@@ -17,9 +17,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20'
-
+    
       - name: Install pnpm
         run: npm install -g pnpm
+
+      - name: Set up pnpm global bin directory
+        run: |
+            pnpm setup
+            export PNPM_HOME=$(pnpm config get PNPM_HOME)
+            export PATH=$PNPM_HOME:$PATH
 
       - name: Install and build plugins
         run: |
