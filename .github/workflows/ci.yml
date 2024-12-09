@@ -61,11 +61,11 @@ jobs:
             cd ..
           done
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          cd dist
-          git add .
-          git commit -m "Update built plugins"
-          git push origin HEAD || echo "No changes to push"
+    #   - name: Commit and push changes
+    #     run: |
+    #       git config --global user.name "GitHub Actions"
+    #       git config --global user.email "actions@github.com"
+    #       cd dist
+    #       git add .
+    #       git commit -m "Update built plugins"
+    #       git push origin HEAD || echo "No changes to push"
