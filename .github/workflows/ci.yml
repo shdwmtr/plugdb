@@ -34,7 +34,7 @@ jobs:
             pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
             
             mkdir -p ../../dist/"$d"
-            cp .millennium ../../dist/"$d".millennium || echo "Failed to move $d to dist"
+            cp -r .millennium ../../dist/"$d".millennium || echo "Failed to move $d to dist"
 
             cp plugin.json ../../dist/"$d"plugin.json || echo "Failed to move plugin.json to dist"
             cp requirements.txt ../../dist/"$d"requirements.txt || echo "Failed to move requirements.txt to dist"
@@ -46,7 +46,7 @@ jobs:
 
             backend=$(jq -r '.backend' plugin.json)
             if [ "$backend" != "null" ]; then
-              cp "$backend" ../../dist/"$d""$backend" || echo "Failed to move $backend to dist"
+              cp -r "$backend" ../../dist/"$d""$backend" || echo "Failed to move $backend to dist"
             fi
 
             # Get extra files from include list in plugin.json and move them to dist
@@ -54,7 +54,7 @@ jobs:
             include=$(jq -r '.include' plugin.json)
             if [ "$include" != "null" ]; then
               for file in $include; do
-                cp "$file" ../../dist/"$d""$file" || echo "Failed to move $file to dist"
+                cp -r "$file" ../../dist/"$d""$file" || echo "Failed to move $file to dist"
               done
             fi
 
