@@ -24,7 +24,7 @@ jobs:
 
       - name: Install and build plugins
         run: |
-          mkdir -p dist/plugins
+          mkdir -p dist/
           cd plugins
           for d in */ ; do
             echo "Processing plugin: $d"
@@ -33,28 +33,28 @@ jobs:
             pnpm install || { echo "Failed to install dependencies for $d, skipping"; cd ..; continue; }
             pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
             
-            mkdir -p ../../dist/plugins/"$d"
-            cp .millennium ../../dist/plugins/"$d".millennium || echo "Failed to move $d to dist/plugins"
+            mkdir -p ../../dist/"$d"
+            cp .millennium ../../dist/"$d".millennium || echo "Failed to move $d to dist"
 
-            cp plugin.json ../../dist/plugins/"$d"plugin.json || echo "Failed to move plugin.json to dist/plugins"
-            cp requirements.txt ../../dist/plugins/"$d"requirements.txt || echo "Failed to move requirements.txt to dist/plugins"
+            cp plugin.json ../../dist/"$d"plugin.json || echo "Failed to move plugin.json to dist"
+            cp requirements.txt ../../dist/"$d"requirements.txt || echo "Failed to move requirements.txt to dist"
 
-            cp README.md ../../dist/plugins/"$d"README.md || echo "Failed to move README.md to dist/plugins"
-            cp README ../../dist/plugins/"$d"README || echo "Failed to move README to dist/plugins"
+            cp README.md ../../dist/"$d"README.md || echo "Failed to move README.md to dist"
+            cp README ../../dist/"$d"README || echo "Failed to move README to dist"
 
-            # Get the backend folder from plugin.json and move it to dist/plugins
+            # Get the backend folder from plugin.json and move it to dist
 
             backend=$(jq -r '.backend' plugin.json)
             if [ "$backend" != "null" ]; then
-              cp "$backend" ../../dist/plugins/"$d""$backend" || echo "Failed to move $backend to dist/plugins"
+              cp "$backend" ../../dist/"$d""$backend" || echo "Failed to move $backend to dist"
             fi
 
-            # Get extra files from include list in plugin.json and move them to dist/plugins
+            # Get extra files from include list in plugin.json and move them to dist
 
             include=$(jq -r '.include' plugin.json)
             if [ "$include" != "null" ]; then
               for file in $include; do
-                cp "$file" ../../dist/plugins/"$d""$file" || echo "Failed to move $file to dist/plugins"
+                cp "$file" ../../dist/"$d""$file" || echo "Failed to move $file to dist"
               done
             fi
 
