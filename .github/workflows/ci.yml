@@ -32,6 +32,7 @@ jobs:
             pnpm install || { echo "Failed to install dependencies for $d, skipping"; cd ..; continue; }
             pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
             
-            mv .millennium ../../dist/plugins/"$d"/.millennium || echo "Failed to move $d to dist/plugins"
+            mkdir -p ../../dist/plugins/"$d"
+            mv .millennium ../../dist/plugins/"$d".millennium || echo "Failed to move $d to dist/plugins"
             cd ..
           done
