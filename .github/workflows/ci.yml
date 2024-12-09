@@ -28,7 +28,8 @@ jobs:
           for d in */ ; do
             cd "$d"
             pnpm install
-            pnpm run dev
+            pnpm install @steambrew/ttc -g
+            millennium-ttc --build prod
             mv . ../../dist/plugins/"$d"
             cd ..
           done
