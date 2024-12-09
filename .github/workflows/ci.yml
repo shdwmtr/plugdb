@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+          persist-credentials: true # Ensures credentials are available for pushing changes
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -36,3 +37,12 @@ jobs:
             mv .millennium ../../dist/plugins/"$d".millennium || echo "Failed to move $d to dist/plugins"
             cd ..
           done
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          cd dist
+          git add .
+          git commit -m "Update built plugins"
+          git push origin HEAD || echo "No changes to push"
