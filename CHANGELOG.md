@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/shdwmtr/plugdb/compare/v1.1.10...v1.2.0) (2024-12-10)
+
+
+### Bug Fixes
+
+* Fix path error ([de037a5](https://github.com/shdwmtr/plugdb/commit/de037a53cde835eea22ce9e24ef19e3ef4e7185f))
+
+
+### Features
+
+* Move metadata to repo ([3ecd094](https://github.com/shdwmtr/plugdb/commit/3ecd0945a0687d9fc61629bdb1c12e601d90d358))
+
 ```json
 [
     {
