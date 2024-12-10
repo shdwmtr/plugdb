@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/shdwmtr/plugdb/compare/v1.2.0...v1.2.1) (2024-12-10)
+
+
+### Bug Fixes
+
+* Fix another pathing issue ([da1e93b](https://github.com/shdwmtr/plugdb/commit/da1e93b4dc65cb3d0d9101f07d93fbbd386bece5))
+
 # [1.2.0](https://github.com/shdwmtr/plugdb/compare/v1.1.10...v1.2.0) (2024-12-10)
 
 
