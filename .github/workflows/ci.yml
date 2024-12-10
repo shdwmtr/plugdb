@@ -76,7 +76,7 @@ jobs:
             out="${folder%/}"
 
             # get theme name
-            theme_name=$(jq -r '.name' "$folder"plugin.json)
+            theme_name=$(jq -r '.id' "$folder"metadata.json)
 
             echo "Zipping folder: $folder"
             zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
