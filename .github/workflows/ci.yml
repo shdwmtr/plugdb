@@ -76,8 +76,12 @@ jobs:
 
             touch  "$folder"metadata.json
 
+            cd "$folder"
+
             # write current commit id to metadata.json
-            echo "{\"commit\": \"$(git -C "$folder" rev-parse HEAD)\", \"id\": \"$(git -C "$folder" rev-list --max-parents=0 HEAD)\"}" > "$folder"metadata.json
+            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > "$folder"metadata.json
+
+            cd -
 
             echo "Zipping folder: $folder"
             zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
