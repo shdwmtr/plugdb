@@ -79,7 +79,7 @@ jobs:
             cd "$folder"
 
             # write current commit id to metadata.json
-            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > "$folder"metadata.json
+            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > metadata.json
 
             cd -
 
