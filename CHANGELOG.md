@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/shdwmtr/plugdb/compare/v1.0.0...v1.0.1) (2024-12-10)
+
+
+### Bug Fixes
+
+* update CI to use proper plugin names ([2fbbb44](https://github.com/shdwmtr/plugdb/commit/2fbbb443a24c3d6273a1f24df88fc1d12da67ea0))
+
 # 1.0.0 (2024-12-09)
 
 
