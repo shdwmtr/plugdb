@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const ParsePlugin = () => {
+const ParsePlugin = (pluginsDir, submodule) => {
     const submodulePath = path.join(pluginsDir, submodule);
 
     if (fs.existsSync(path.join(submodulePath, '.git'))) {
@@ -26,7 +26,7 @@ module.exports = {
         let releaseNotes = '';
 
         if (fs.existsSync(pluginsDir)) {
-            fs.readdirSync(pluginsDir).forEach(submodule => { pluginIds.push(ParsePlugin(submodule)); });
+            fs.readdirSync(pluginsDir).forEach(submodule => { pluginIds.push(ParsePlugin(pluginsDir, submodule)); });
         } 
 
         for (let plugin of pluginIds) {
