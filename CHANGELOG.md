@@ -1,3 +1,24 @@
+```json
+[
+    {
+        "plugin": "MicaForSteam",
+        "commitId": "b6ff33152d1b8ad1cf6dbc408372a9695da1eb93"
+    },
+    {
+        "plugin": "adamraichu.auto-accept-custom-launch-args",
+        "commitId": "b1cada4d41a5abd644306c4996c650179a28cb1c"
+    },
+    {
+        "plugin": "steam-browser-history",
+        "commitId": "586f005609ad4d3b76e0880fc32fdf7758f2391d"
+    },
+    {
+        "plugin": "steamdb",
+        "commitId": "d516736fabaf51ea0c58c909eae60f8daa871c50"
+    }
+]
+```
+
 ```json[
     {
         "plugin": "MicaForSteam",
