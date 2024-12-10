@@ -23,14 +23,14 @@ const ParsePlugin = (pluginsDir, submodule) => {
 
     if (fs.existsSync(path.join(submodulePath, '.git'))) {
         try {
-            return { plugin: pluginName, commitId: execSync(`git -C ${submodulePath} rev-parse HEAD`, { encoding: 'utf-8' }).trim() };
+            return { id: pluginName, commitId: execSync(`git -C ${submodulePath} rev-parse HEAD`, { encoding: 'utf-8' }).trim() };
         } 
         catch (error) {
-            return { plugin: pluginName, commitId: null };
+            return { id: pluginName, commitId: null };
         }
     } 
     else {
-        return { plugin: pluginName, commitId: null };
+        return { id: pluginName, commitId: null };
     }
 }
 
