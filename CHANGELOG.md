@@ -1,3 +1,22 @@
+```json[
+    {
+        "plugin": "MicaForSteam",
+        "commitId": "b6ff33152d1b8ad1cf6dbc408372a9695da1eb93"
+    },
+    {
+        "plugin": "adamraichu.auto-accept-custom-launch-args",
+        "commitId": "b1cada4d41a5abd644306c4996c650179a28cb1c"
+    },
+    {
+        "plugin": "steam-browser-history",
+        "commitId": "586f005609ad4d3b76e0880fc32fdf7758f2391d"
+    },
+    {
+        "plugin": "steamdb",
+        "commitId": "d516736fabaf51ea0c58c909eae60f8daa871c50"
+    }
+]```
+
 TWljYUZvclN0ZWFt: b6ff33152d1b8ad1cf6dbc408372a9695da1eb93
 YWRhbXJhaWNodS5hdXRvLWFjY2VwdC1jdXN0b20tbGF1bmNoLWFyZ3M=: b1cada4d41a5abd644306c4996c650179a28cb1c
 c3RlYW0tYnJvd3Nlci1oaXN0b3J5: 586f005609ad4d3b76e0880fc32fdf7758f2391d
