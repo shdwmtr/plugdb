@@ -1,6 +1,27 @@
 ```json
 [
     {
+        "plugin": "b4c58634419beab7b23cae6eee2d4bef45b454b3",
+        "commitId": "b6ff33152d1b8ad1cf6dbc408372a9695da1eb93"
+    },
+    {
+        "plugin": "23c7ecc10605f2134e748cf3592bee0b29da1a4b",
+        "commitId": "b1cada4d41a5abd644306c4996c650179a28cb1c"
+    },
+    {
+        "plugin": "aca2451aea1d2bc5e5df9a2b8bb3d1b6a8f3fa8b",
+        "commitId": "586f005609ad4d3b76e0880fc32fdf7758f2391d"
+    },
+    {
+        "plugin": "c36d5f67c99fc9057073fae4e531caaf17f4b26f",
+        "commitId": "d516736fabaf51ea0c58c909eae60f8daa871c50"
+    }
+]
+```
+
+```json
+[
+    {
         "plugin": "b6ff33152d1b8ad1cf6dbc408372a9695da1eb93",
         "commitId": "b6ff33152d1b8ad1cf6dbc408372a9695da1eb93"
     },
