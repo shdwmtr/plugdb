@@ -46,6 +46,10 @@ jobs:
             cp README.md ../../dist/"$d"README.md || echo "Failed to move README.md to dist"
             cp README ../../dist/"$d"README || echo "Failed to move README to dist"
 
+            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > metadata.json
+            cp metadata.json ../../dist/"$d"metadata.json || echo "Failed to move metadata.json to dist"
+
+
             # Get the backend folder from plugin.json and move it to dist
             backend=$(jq -r '.backend' plugin.json)
             if [ "$backend" != "null" ]; then
@@ -73,15 +77,6 @@ jobs:
 
             # get theme name
             theme_name=$(jq -r '.name' "$folder"plugin.json)
-
-            touch  "$folder"metadata.json
-
-            cd "$folder"
-
-            # write current commit id to metadata.json
-            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > metadata.json
-
-            cd -
 
             echo "Zipping folder: $folder"
             zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
