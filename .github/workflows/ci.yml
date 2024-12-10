@@ -11,9 +11,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          submodules: true
-          persist-credentials: true # Ensures credentials are available for pushing changes
-
+          submodules: recursive             # Clone submodules recursively
+          persist-credentials: true         # Ensure credentials are available for pushing changes
+          fetch-depth: 0                    # Clone full history for the repository and submodules
+          
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
