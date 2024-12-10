@@ -2,9 +2,14 @@
   "branches": ["main"],
   "plugins": [
     "@semantic-release/commit-analyzer",
-    "./scripts/release.js",
+    "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
-    "@semantic-release/git",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "metadata.json"]
+      }
+    ],
     {
       "path": "@semantic-release/github",
       "assets": ["build/*.zip"]

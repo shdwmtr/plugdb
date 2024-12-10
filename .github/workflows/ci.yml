@@ -67,6 +67,8 @@ jobs:
             cd ..
           done
 
+          node ./scripts/release.js
+
       - name: Zip folders in /dist
         run: |
           mkdir -p build

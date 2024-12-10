@@ -35,17 +35,12 @@ const ParsePlugin = (pluginsDir, submodule) => {
 }
 
 
-module.exports = {
-    generateNotes: async () => {
-        const pluginsDir = path.resolve(process.cwd(), 'plugins');
-        let pluginIds = [];
-        let releaseNotes = '```json\n';
+const pluginsDir = path.resolve(process.cwd(), 'plugins');
+let pluginIds = [];
 
-        if (fs.existsSync(pluginsDir)) {
-            fs.readdirSync(pluginsDir).forEach(submodule => { pluginIds.push(ParsePlugin(pluginsDir, submodule)); });
-        } 
+if (fs.existsSync(pluginsDir)) {
+    fs.readdirSync(pluginsDir).forEach(submodule => { pluginIds.push(ParsePlugin(pluginsDir, submodule)); });
+} 
 
-        releaseNotes += JSON.stringify(pluginIds, null, 4);
-        return releaseNotes + '\n```';
-    }
-};
+// write JSON to metadata.json
+fs.writeFileSync(path.resolve(process.cwd(), 'metadata.json'), JSON.stringify(pluginIds, null, 4));
