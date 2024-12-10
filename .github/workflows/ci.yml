@@ -70,9 +70,12 @@ jobs:
 
             out="${folder%/}"
 
+            # get theme name
+            theme_name=$(jq -r '.name' "$folder"plugin.json)
+
             echo "Zipping folder: $folder"
             zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
-            mv "$out.zip" ../build/$out.zip || echo "Failed to move $folder.zip to build"
+            mv "$out.zip" ../build/$theme_name.zip || echo "Failed to move $folder.zip to build"
           done
 
       - name: List built plugins
