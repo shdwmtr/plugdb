@@ -67,7 +67,7 @@ jobs:
             cd ..
           done
 
-          node ./scripts/release.js
+          node ../scripts/release.js
 
       - name: Zip folders in /dist
         run: |
