@@ -23,16 +23,13 @@ module.exports = {
     generateNotes: async () => {
         const pluginsDir = path.resolve(process.cwd(), 'plugins');
         let pluginIds = [];
-        let releaseNotes = '';
+        let releaseNotes = '```json';
 
         if (fs.existsSync(pluginsDir)) {
             fs.readdirSync(pluginsDir).forEach(submodule => { pluginIds.push(ParsePlugin(pluginsDir, submodule)); });
         } 
 
-        for (let plugin of pluginIds) {
-            releaseNotes += `${btoa(plugin.plugin)}: ${plugin.commitId}\n`;
-        }
-
-        return releaseNotes;
+        releaseNotes += JSON.stringify(pluginIds, null, 4);
+        return releaseNotes + '```';
     }
 };
