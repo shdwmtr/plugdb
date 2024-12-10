@@ -1,3 +1,10 @@
+# Submodule Commit IDs
+
+- **MicaForSteam**: b6ff33152d1b8ad1cf6dbc408372a9695da1eb93
+- **adamraichu.auto-accept-custom-launch-args**: b1cada4d41a5abd644306c4996c650179a28cb1c
+- **steam-browser-history**: 586f005609ad4d3b76e0880fc32fdf7758f2391d
+- **steamdb**: d516736fabaf51ea0c58c909eae60f8daa871c50
+
 ## [1.0.1](https://github.com/shdwmtr/plugdb/compare/v1.0.0...v1.0.1) (2024-12-10)
 
 
