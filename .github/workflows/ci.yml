@@ -73,6 +73,11 @@ jobs:
             # get theme name
             theme_name=$(jq -r '.name' "$folder"plugin.json)
 
+            touch  "$folder"metadata.json
+
+            # write current commit id to metadata.json
+            echo "{\"commit\": \"$(git rev-parse HEAD)\"}" > "$folder"metadata.json
+
             echo "Zipping folder: $folder"
             zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
             mv "$out.zip" ../build/$theme_name.zip || echo "Failed to move $folder.zip to build"
