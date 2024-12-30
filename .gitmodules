@@ -10,3 +10,6 @@
 [submodule "plugins/steamdb"]
 	path = plugins/steamdb
 	url = https://github.com/tddebart/Steam-SteamDB-extension
+[submodule "plugins/augmented-steam"]
+	path = plugins/augmented-steam
+	url = https://github.com/tddebart/AugmentedSteam-Extension-Plugin
