@@ -30,7 +30,8 @@ jobs:
         id: discover-submodules
         run: |
           submodules=$(git submodule status --recursive | awk '{ print $2 }')
-          matrix=$(echo "$submodules" | jq -R -s -c 'split("\n")[:-1] | map({ repository: . })')
+          # Convert submodules to JSON array format with owner/repo info
+          matrix=$(echo "$submodules" | jq -R -s -c 'split("\n")[:-1] | map({repository: .})')
           echo "Submodule Matrix: $matrix"
           echo "::set-output name=submodule-matrix::$matrix"
 
@@ -63,7 +64,7 @@ jobs:
 
           cd ${{ matrix.repository }}
           echo "Changed directory to ${{ matrix.repository }}"
-          
+
           # Check if the directory exists before trying to run pnpm
           if [ -d "$PWD" ]; then
             pnpm install
