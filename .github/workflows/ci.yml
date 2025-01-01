@@ -57,9 +57,20 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
+          echo "Available directories:"
+          ls -l  # This will list the directories in the current working directory
+
           cd ${{ matrix.plugin }}
-          pnpm install
-          pnpm run build
+          echo "Changed directory to ${{ matrix.plugin }}"
+          
+          # Check if the directory exists before trying to run pnpm
+          if [ -d "$PWD" ]; then
+            pnpm install
+            pnpm run build
+          else
+            echo "Error: Directory ${{ matrix.plugin }} does not exist!"
+            exit 1  # Fail the job if the directory does not exist
+          fi
         env:
           NODE_ENV: production
 
