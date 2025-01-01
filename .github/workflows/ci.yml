@@ -1,19 +1,22 @@
 name: CI
 
 on:
-  [push, pull_request]
-
+  - push
+  - pull_request
+  - workflow_dispatch  # Allow manual trigger from GitHub UI
+  
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    outputs:
+      plugin-matrix: ${{ steps.discover-plugins.outputs.plugin-matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          submodules: recursive             # Clone submodules recursively
-          persist-credentials: true         # Ensure credentials are available for pushing changes
-          fetch-depth: 0                    # Clone full history for the repository and submodules
+          submodules: recursive
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -23,74 +26,94 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install and build plugins
+      - name: Discover plugins
+        id: discover-plugins
         run: |
+          plugins=$(find plugins/* -type d -maxdepth 0)
+          matrix=$(echo "$plugins" | jq -R -s -c 'split("\n")[:-1] | map({ plugin: . })')
+          echo "Matrix: $matrix"
+          echo "::set-output name=plugin-matrix::$matrix"
 
-          pnpm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+  process-plugin:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: ${{ fromJson(needs.build.outputs.plugin-matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-          mkdir -p dist/
-          cd plugins
-          for d in */ ; do
-            echo "Processing plugin: $d"
-            cd "$d" || { echo "Failed to access $d, skipping"; continue; }
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
 
-            pnpm install || { echo "Failed to install dependencies for $d, skipping"; cd ..; continue; }
-            pnpm run build || { echo "Failed to build $d, skipping"; cd ..; continue; }
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-            mkdir -p ../../dist/"$d"
-            cp -r .millennium ../../dist/"$d".millennium || echo "Failed to move $d to dist"
-
-            cp plugin.json ../../dist/"$d"plugin.json || echo "Failed to move plugin.json to dist"
-            cp requirements.txt ../../dist/"$d"requirements.txt || echo "Failed to move requirements.txt to dist"
-
-            cp README.md ../../dist/"$d"README.md || echo "Failed to move README.md to dist"
-            cp README ../../dist/"$d"README || echo "Failed to move README to dist"
-
-            echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > metadata.json
-            cp metadata.json ../../dist/"$d"metadata.json || echo "Failed to move metadata.json to dist"
-
-
-            # Get the backend folder from plugin.json and move it to dist
-            backend=$(jq -r '.backend' plugin.json)
-            if [ "$backend" != "null" ]; then
-              cp -r "$backend" ../../dist/"$d""$backend" || echo "Failed to move $backend to dist"
-            fi
-
-            # Get extra files from include list in plugin.json and move them to dist
-            include=$(jq -r '.include' plugin.json)
-            if [ "$include" != "null" ]; then
-              for file in $include; do
-                cp -r "$file" ../../dist/"$d""$file" || echo "Failed to move $file to dist"
-              done
-            fi
-
-            cd ..
-          done
-
-          cd ..
-          node ./scripts/release.js
-
-      - name: Zip folders in /dist
+      - name: Install dependencies and build plugin
         run: |
+          cd ${{ matrix.plugin }}
+          pnpm install
+          pnpm run build
+        env:
+          NODE_ENV: production
+
+      - name: Copy files to dist
+        run: |
+          plugin_dir="${{ matrix.plugin }}"  # Use the full plugin path
+          plugin_dir=${plugin_dir##*/}       # Extract the plugin folder name
+          mkdir -p dist/"$plugin_dir"
+
+          cp -r "${{ matrix.plugin }}/plugin.json" dist/"$plugin_dir"/plugin.json
+          cp -r "${{ matrix.plugin }}/requirements.txt" dist/"$plugin_dir"/requirements.txt
+          cp -r "${{ matrix.plugin }}/README.md" dist/"$plugin_dir"/README.md || true
+          cp -r "${{ matrix.plugin }}/README" dist/"$plugin_dir"/README || true
+
+          cd "${{ matrix.plugin }}"
+
+          # Handle backend
+          backend=$(jq -r '.backend' plugin.json)
+          if [ "$backend" != "null" ]; then
+            cp -r "$backend" ../../dist/"$plugin_dir"/"$backend"
+          fi
+
+          # Handle include files
+          include=$(jq -r '.include | join(" ")' plugin.json)
+          if [ -n "$include" ]; then
+            for file in $include; do
+              cp -r "$file" ../../dist/"$plugin_dir"/"$file"
+            done
+          fi
+
+          cd ../..
+
+          # Add metadata
+          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/"$plugin_dir"/metadata.json
+
+      - name: Zip the plugin
+        run: |
+          plugin_dir="${{ matrix.plugin }}"
+          plugin_dir=${plugin_dir##*/}  # Extract the plugin folder name
           mkdir -p build
           cd dist
-          for folder in */; do
+          zip -r "$plugin_dir.zip" "$plugin_dir"
+          mv "$plugin_dir.zip" ../build/"$plugin_dir.zip"
 
-            out="${folder%/}"
-
-            # get theme name
-            theme_id=$(jq -r '.id' "$folder"metadata.json)
-
-            echo "Zipping folder: $folder"
-            zip -r "$out.zip" "$folder" || echo "Failed to zip $folder"
-            mv "$out.zip" ../build/$theme_id.zip || echo "Failed to move $folder.zip to build"
-          done
-
+  finalize:
+    needs: process-plugin
+    runs-on: ubuntu-latest
+    steps:
       - name: List built plugins
         run: ls -l build/
 
       - name: Run Semantic Release
         run: |
+          pnpm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
           npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
