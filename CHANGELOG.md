@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/shdwmtr/plugdb/compare/v1.3.0...v1.4.0) (2025-01-01)
+
+
+### Features
+
+* add Augmented Steam plugin ([#5](https://github.com/shdwmtr/plugdb/issues/5)) ([db0675b](https://github.com/shdwmtr/plugdb/commit/db0675b48a88be246754f484085e4f38a0ff765a))
+
 # [1.3.0](https://github.com/shdwmtr/plugdb/compare/v1.2.1...v1.3.0) (2024-12-15)
 
 
