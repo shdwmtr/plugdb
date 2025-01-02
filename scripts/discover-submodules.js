@@ -1,11 +1,11 @@
 const { execSync } = require('child_process');
 
 // log current directory
-console.log('Current directory:', execSync('pwd').toString().trim());
+// console.log('Current directory:', execSync('pwd').toString().trim());
 let json = [];
 
 try {
-    const submoduleNames = execSync('git submodule foreach --quiet "echo $name"').toString().split('\n').filter(Boolean);
+    const submoduleNames = execSync('git submodule foreach --quiet "echo \$name"').toString().split('\n').filter(Boolean);
     console.log('submoduleNames:', submoduleNames)
 
     const topLevelDir = execSync('git rev-parse --show-toplevel').toString().trim();
