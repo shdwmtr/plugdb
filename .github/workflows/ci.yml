@@ -105,14 +105,14 @@ jobs:
           if [ "$BACKEND_DIR" != "null" ]; then
             cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
           else 
-            cp -r "backend" ./dist/backend
+            cp -r "backend" ./dist/backend 2>/dev/null || echo "::warning::backend directory not found, skipping."
           fi
 
           FRONTEND_DIR=$(jq -r '.frontend' plugin.json)
           if [ "$FRONTEND_DIR" != "null" ]; then
             cp -r "$FRONTEND_DIR" ./dist/"$FRONTEND_DIR"
           else 
-            cp -r "frontend" ./dist/frontend
+            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::warning::frontend directory not found, skipping."
           fi
 
           include=$(jq -r '.include // [] | .[]' plugin.json)
