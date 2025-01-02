@@ -94,7 +94,6 @@ jobs:
       - name: Copy files to dist
         id: copy-files-to-dist
         run: |
-          ls -R
 
           mkdir -p dist
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
@@ -123,7 +122,6 @@ jobs:
           else
             echo "::notice::Including additional files: $include"
             for item in $include; do
-              echo "Processing $item"
               cp -r "./$item" "./dist/$item"
             done
           fi
@@ -133,16 +131,16 @@ jobs:
 
           id=$(jq -r '.id' dist/metadata.json)
           echo "id=$id" >> $GITHUB_OUTPUT
-          
+
           cd dist
           echo "::notice::Building plugin archive..."
           zip -r "$id.zip" .
 
           echo "::notice::Successfully built plugin."
 
-          echo "::notice::Uploading plugin to Google Cloud Storage..."
+          echo "::notice::Uploading plugin to database..."
           gsutil cp "$id.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::notice::Successfully uploaded plugin to Google Cloud Storage."
+          echo "::notice::Successfully uploaded plugin to database."
 
 
       
