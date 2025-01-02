@@ -68,34 +68,26 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
-          # list recursively all files and directories in the current directory
           ls -R
-
           pnpm install
           pnpm run build
         env:
           NODE_ENV: production
 
       - name: Copy files to dist
+        id: copy-files-to-dist
         run: |
-
           mkdir -p dist
-          ls -R
-          pwd
-
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-
           cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
           cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
           cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
 
-          # Extract the 'backend' value and copy if it exists
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
             cp -r "$backend" ./dist/"$backend"
           fi
 
-          # Extract the 'include' value, handle null or missing, and copy if any files exist
           include=$(jq -r '.include // empty' plugin.json)
           if [ -n "$include" ]; then
             for file in $include; do
@@ -104,17 +96,21 @@ jobs:
           fi
 
           echo "::notice::Computing plugin metadata..."
-
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
-      - name: Zip the plugin
-        run: |
-          repo_name="${{ matrix.repository }}"
-          repo_name=${repo_name##*/}  # Extract the repo name
-          mkdir -p build
+          id=$(jq -r '.id' dist/metadata.json)
+          echo "::set-output name=id::$id"  # Set the id as an output variable
+
           cd dist
-          zip -r "$repo_name.zip" "$repo_name"
-          mv "$repo_name.zip" ../build/"$repo_name.zip"
+          zip -r "$id.zip" .
+
+          echo "::notice::Successfully built plugin."
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.copy-files-to-dist.outputs.id }}  # Correct reference here
+          path: dist/${{ steps.copy-files-to-dist.outputs.id }}.zip
 
   finalize:
     needs: process-plugin
