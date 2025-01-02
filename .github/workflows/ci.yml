@@ -76,11 +76,12 @@ jobs:
       - name: Copy files to dist
         run: |
           mkdir -p dist
+          pwd
 
-          cp -r "/plugin.json" dist/plugin.json
-          cp -r "/requirements.txt" dist/requirements.txt
-          cp -r "/README.md" dist/README.md || true
-          cp -r "/README" dist/README || true
+          cp -r "plugin.json" dist/plugin.json
+          cp -r "requirements.txt" dist/requirements.txt
+          cp -r "README.md" dist/README.md || true
+          cp -r "README" dist/README || true
 
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
