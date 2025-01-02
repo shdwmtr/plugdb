@@ -91,6 +91,9 @@ jobs:
           fi
 
           include=$(jq -r '.include // [] | @sh' plugin.json)
+
+          echo "::notice::Including additional files: $include"
+
           if [ "$include" != "''" ]; then
             for file in $include; do
               cp -r "$file" ./dist/"$file"
