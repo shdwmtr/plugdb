@@ -63,6 +63,22 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Google Cloud SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install apt-transport-https ca-certificates gnupg curl
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update && sudo apt-get install google-cloud-cli
+
+      - name: Authenticate to Google Cloud
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
+          gcloud auth activate-service-account --key-file=gcloud-key.json
+          gcloud config set project steam-brew
+
       - name: Install pnpm
         run: npm install -g pnpm
 
@@ -113,28 +129,9 @@ jobs:
 
           echo "::notice::Successfully built plugin."
 
-      # Step 2: Set up Google Cloud SDK
-      - name: Install Google Cloud SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
+          echo "::notice::Uploading plugin to Google Cloud Storage..."
+          gsutil cp "$id.zip" gs://steam-brew.firebasestorage.app/plugins"$id.zip"
+          echo "::notice::Successfully uploaded plugin to Google Cloud Storage."
 
-      # Step 3: Authenticate with the Service Account
-      - name: Authenticate to Google Cloud
-        env:
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
-          gcloud auth activate-service-account --key-file=gcloud-key.json
-          gcloud config set project steam-brew
-
-      # Step 4: Upload a file to GCS
-      - name: Upload file to GCS
-        run: |
-          echo "This is a test file" > test-file.txt
-          gsutil cp test-file.txt gs://steam-brew.firebasestorage.app/test-file.txt
 
       
