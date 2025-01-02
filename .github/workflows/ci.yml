@@ -42,7 +42,7 @@ jobs:
       matrix:
         repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
     steps:
-      - name: Checkout specific submodule repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
         with:
           repository: ${{ matrix.repository }}
@@ -54,7 +54,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Google Cloud SDK
+      - name: Install Database SDK
         run: |
           sudo apt-get update
           sudo apt-get install apt-transport-https ca-certificates gnupg curl
@@ -62,7 +62,7 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
           sudo apt-get update && sudo apt-get install google-cloud-cli
 
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Database
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: |
