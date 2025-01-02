@@ -87,8 +87,6 @@ jobs:
           ls -R
           pnpm install
           pnpm run build
-        env:
-          NODE_ENV: production
 
       - name: Copy files to dist
         id: copy-files-to-dist
