@@ -77,6 +77,8 @@ jobs:
       - name: Copy files to dist
         id: copy-files-to-dist
         run: |
+          ls -R
+
           mkdir -p dist
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
           cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
