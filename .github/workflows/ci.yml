@@ -88,9 +88,8 @@ jobs:
             cp -r "$backend" ./dist/"$backend"
           fi
 
-          include=$(jq -r '.include // empty' plugin.json)
-          
-          if [ -n "$include" ]; then
+          include=$(jq -r '.include // [] | @sh' plugin.json)
+          if [ "$include" != "''" ]; then
             for file in $include; do
               cp -r "$file" ./dist/"$file"
             done
