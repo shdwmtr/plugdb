@@ -75,30 +75,27 @@ jobs:
 
       - name: Copy files to dist
         run: |
-          repo_name="${{ matrix.repository }}"
-          repo_name=${repo_name##*/}  # Extract the repo name
-          mkdir -p dist/"$repo_name"
+          mkdir -p dist
 
-          cp -r "$repo_name/plugin.json" dist/"$repo_name"/plugin.json
-          cp -r "$repo_name/requirements.txt" dist/"$repo_name"/requirements.txt
-          cp -r "$repo_name/README.md" dist/"$repo_name"/README.md || true
-          cp -r "$repo_name/README" dist/"$repo_name"/README || true
+          cp -r "/plugin.json" dist/plugin.json
+          cp -r "/requirements.txt" dist/requirements.txt
+          cp -r "/README.md" dist/README.md || true
+          cp -r "/README" dist/README || true
 
-          cd "$repo_name"
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
-            cp -r "$backend" ../../dist/"$repo_name"/"$backend"
+            cp -r "$backend" ../../dist/"$backend"
           fi
 
           include=$(jq -r '.include | join(" ")' plugin.json)
           if [ -n "$include" ]; then
             for file in $include; do
-              cp -r "$file" ../../dist/"$repo_name"/"$file"
+              cp -r "$file" ../../dist/"$file"
             done
           fi
 
           cd ../..
-          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/"$repo_name"/metadata.json
+          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
       - name: Zip the plugin
         run: |
