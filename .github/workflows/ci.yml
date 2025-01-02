@@ -82,10 +82,11 @@ jobs:
           ls -R
           pwd
 
-          cp "$repo_name/plugin.json" dist/"$repo_name"/plugin.json 2>/dev/null || echo "::error::plugin.json not found, skipping."
-          cp "$repo_name/requirements.txt" dist/"$repo_name"/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
-          cp "$repo_name/README.md" dist/"$repo_name"/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
-          cp "$repo_name/README" dist/"$repo_name"/README 2>/dev/null || echo "::warning::README not found, skipping."
+          cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
+
+          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
+          cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
+          cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
 
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
