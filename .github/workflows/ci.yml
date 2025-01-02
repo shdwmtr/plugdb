@@ -115,6 +115,7 @@ jobs:
   finalize:
     needs: process-plugin
     runs-on: ubuntu-latest
+    if: ${{ always() }} 
     steps:
       - name: List built plugins
         run: ls -l build/
