@@ -103,6 +103,8 @@ jobs:
             done
           fi
 
+          echo "::notice::Computing plugin metadata..."
+
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
       - name: Zip the plugin
