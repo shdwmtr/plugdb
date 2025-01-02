@@ -15,7 +15,7 @@ try {
         const owner = url.replace(/https:\/\/github.com\/([^\/]+)\/.*/, '$1');
         const repo = url.replace(/https:\/\/github.com\/[^\/]+\/([^\/]+).*/, '$1').replace(/\.git$/, '');
 
-        json.push({ owner: owner, repo: repo });
+        json.push(`${owner}/${repo}`);
     });
 } catch (error) {
     console.error('Error processing submodules:', error);

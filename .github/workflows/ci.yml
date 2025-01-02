@@ -30,19 +30,7 @@ jobs:
         id: discover-submodules
         run: |
           sudo node ./scripts/discover-submodules.js > submodules.json
-
-          echo "Original Submodule JSON content:"
-          cat submodules.json
-
-          # Transform JSON into a list of 'owner/repo' strings
-          jq -c '[.[] | "\(.owner)/\(.repo)"]' submodules.json > transformed-submodules.json
-
-          echo "Transformed Submodule JSON content:"
-          cat transformed-submodules.json
-
-          # Set the output for the submodule matrix
-          echo "submodule-matrix=$(cat transformed-submodules.json)" >> $GITHUB_OUTPUT
-
+          echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
 
   make:
     needs: prepare
@@ -91,8 +79,7 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: Copy files to dist
-        id: copy-files-to-dist
+      - name: Prepare distribution files
         run: |
 
           mkdir -p dist
