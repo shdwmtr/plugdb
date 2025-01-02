@@ -3,7 +3,7 @@ name: CI
 on:
   - push
   - pull_request
-  - workflow_dispatch  # Allow manual trigger from GitHub UI
+  - workflow_dispatch
 
 jobs:
   build:
@@ -30,17 +30,25 @@ jobs:
         id: discover-submodules
         run: |
           sudo node ./scripts/discover-submodules.js > submodules.json
-          echo "::set-output name=submodule-matrix::$(cat submodules.json)"  # Set the output here
 
-          echo "Submodule matrix:"
+          echo "Original Submodule JSON content:"
           cat submodules.json
+
+          # Transform JSON into a list of 'owner/repo' strings
+          jq -c '[.[] | "\(.owner)/\(.repo)"]' submodules.json > transformed-submodules.json
+
+          echo "Transformed Submodule JSON content:"
+          cat transformed-submodules.json
+
+          # Set the output for the submodule matrix
+          echo "::set-output name=submodule-matrix::$(cat transformed-submodules.json)"
 
   process-plugin:
     needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repository: ${{ fromJson(needs.build.outputs.submodule-matrix) }}  # Now properly access the output
+        repository: ${{ fromJson(needs.build.outputs.submodule-matrix) }}
     steps:
       - name: Checkout specific submodule repository
         uses: actions/checkout@v2
@@ -59,27 +67,16 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
-          echo "Available directories:"
-          ls -l  # List contents of the current directory to verify submodule checkout
-
           cd ${{ matrix.repository }}
-          echo "Changed directory to ${{ matrix.repository }}"
-
-          # Check if the directory exists before trying to run pnpm
-          if [ -d "$PWD" ]; then
-            pnpm install
-            pnpm run build
-          else
-            echo "Error: Directory ${{ matrix.repository }} does not exist!"
-            exit 1  # Fail the job if the directory does not exist
-          fi
+          pnpm install
+          pnpm run build
         env:
           NODE_ENV: production
 
       - name: Copy files to dist
         run: |
-          repo_name="${{ matrix.repository }}"  # Use the repo name
-          repo_name=${repo_name##*/}             # Extract the repo name from the full path
+          repo_name="${{ matrix.repository }}"
+          repo_name=${repo_name##*/}  # Extract the repo name
           mkdir -p dist/"$repo_name"
 
           cp -r "$repo_name/plugin.json" dist/"$repo_name"/plugin.json
@@ -88,14 +85,11 @@ jobs:
           cp -r "$repo_name/README" dist/"$repo_name"/README || true
 
           cd "$repo_name"
-
-          # Handle backend
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
             cp -r "$backend" ../../dist/"$repo_name"/"$backend"
           fi
 
-          # Handle include files
           include=$(jq -r '.include | join(" ")' plugin.json)
           if [ -n "$include" ]; then
             for file in $include; do
@@ -104,14 +98,12 @@ jobs:
           fi
 
           cd ../..
-
-          # Add metadata
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/"$repo_name"/metadata.json
 
       - name: Zip the plugin
         run: |
           repo_name="${{ matrix.repository }}"
-          repo_name=${repo_name##*/}  # Extract the repo name from the full path
+          repo_name=${repo_name##*/}  # Extract the repo name
           mkdir -p build
           cd dist
           zip -r "$repo_name.zip" "$repo_name"
