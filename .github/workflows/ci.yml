@@ -96,7 +96,7 @@ jobs:
 
           if [ "$include" != "''" ]; then
             for file in $include; do
-              cp -r "$file" ./dist/"$file"
+              cp -r ./$file ./dist/"$file"
             done
           fi
 
