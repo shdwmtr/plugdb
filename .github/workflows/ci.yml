@@ -29,6 +29,7 @@ jobs:
       - name: Discover submodules
         id: discover-submodules
         run: |
+          git submodule
           node ./scripts/discover-submodules.js
           node ./scripts/discover-submodules.js > submodules.json
           echo "::set-output name=submodule-matrix::$(cat submodules.json)"  # Set the output here
