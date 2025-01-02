@@ -73,6 +73,9 @@ jobs:
           echo "Processing plugin: $repo_name"
           cd "$repo_name"
 
+          # list recursively all files and directories in the current directory
+          ls -R
+
           pwd
           pnpm install
           pnpm run build
