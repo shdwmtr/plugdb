@@ -32,6 +32,9 @@ jobs:
           node ./scripts/discover-submodules.js
           echo "::set-output name=submodule-matrix::$(cat submodules.json)"  # Set the output here
 
+          echo "Submodule matrix:"
+          cat submodules.json
+
   process-plugin:
     needs: build
     runs-on: ubuntu-latest
