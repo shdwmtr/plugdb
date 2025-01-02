@@ -68,13 +68,13 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
+          # list recursively all files and directories in the current directory
+          ls -R
+
           repo_name="${{ matrix.repository }}"
           repo_name=${repo_name##*/}  # Extract the repo name
           echo "Processing plugin: $repo_name"
           cd "$repo_name"
-
-          # list recursively all files and directories in the current directory
-          ls -R
 
           pwd
           pnpm install
