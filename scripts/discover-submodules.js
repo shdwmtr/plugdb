@@ -21,4 +21,4 @@ try {
     console.error('Error processing submodules:', error);
 }
 
-console.log(JSON.stringify(json, null, 4));
+console.log(JSON.stringify(json));

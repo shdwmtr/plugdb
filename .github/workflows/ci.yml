@@ -30,6 +30,8 @@ jobs:
         id: discover-submodules
         run: |
           sudo node ./scripts/discover-submodules.js > submodules.json
+          cat submodules.json
+
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
 
   make:
