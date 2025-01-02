@@ -130,7 +130,7 @@ jobs:
           echo "::notice::Successfully built plugin."
 
           echo "::notice::Uploading plugin to Google Cloud Storage..."
-          gsutil cp "$id.zip" gs://steam-brew.firebasestorage.app/plugins"$id.zip"
+          gsutil cp "$id.zip" gs://steam-brew.firebasestorage.app/plugins/"$id.zip"
           echo "::notice::Successfully uploaded plugin to Google Cloud Storage."
 
 
