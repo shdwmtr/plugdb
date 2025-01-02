@@ -6,7 +6,7 @@ on:
   - workflow_dispatch
 
 jobs:
-  build:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
       submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
@@ -43,13 +43,13 @@ jobs:
           # Set the output for the submodule matrix
           echo "::set-output name=submodule-matrix::$(cat transformed-submodules.json)"
 
-  process-plugin:
-    needs: build
+  make:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        repository: ${{ fromJson(needs.build.outputs.submodule-matrix) }}
+        repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
     steps:
       - name: Checkout specific submodule repository
         uses: actions/checkout@v2
@@ -119,9 +119,9 @@ jobs:
           name: ${{ steps.copy-files-to-dist.outputs.id }}  # Correct reference here
           path: dist/${{ steps.copy-files-to-dist.outputs.id }}.zip
 
-  download:
+  release:
     runs-on: ubuntu-latest
-    needs: process-plugin  # Ensure this job runs after the "build" job
+    needs: make  # Ensure this job runs after the "build" job
     if: ${{ always() }} 
     steps:
       - name: Download assets from the previous job
