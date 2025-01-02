@@ -75,8 +75,43 @@ jobs:
           NODE_ENV: production
 
       - name: Copy files to dist
+        id: copy-files-to-dist
         run: |
-          sudo node ./scripts/create-release.js
+          mkdir -p dist
+          cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
+          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
+          cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
+          cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
+
+          backend=$(jq -r '.backend' plugin.json)
+          if [ "$backend" != "null" ]; then
+            cp -r "$backend" ./dist/"$backend"
+          fi
+
+          include=$(jq -r '.include // empty' plugin.json)
+          
+          if [ -n "$include" ]; then
+            for file in $include; do
+              cp -r "$file" ./dist/"$file"
+            done
+          fi
+
+          echo "::notice::Computing plugin metadata..."
+          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
+
+          id=$(jq -r '.id' dist/metadata.json)
+          echo "::set-output name=id::$id"  # Set the id as an output variable
+
+          cd dist
+          zip -r "$id.zip" .
+
+          echo "::notice::Successfully built plugin."
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.copy-files-to-dist.outputs.id }}  # Correct reference here
+          path: dist/${{ steps.copy-files-to-dist.outputs.id }}.zip
 
   finalize:
     needs: process-plugin
