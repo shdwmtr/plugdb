@@ -8,8 +8,6 @@ try {
         .split('\n')
         .filter(Boolean);
 
-    console.log("submodules", submodules);
-
     submodules.forEach((line) => {
         const [, , name] = line.split(' ');
         const url = execSync(`git config --get submodule.${name}.url`).toString().trim();
