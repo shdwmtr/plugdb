@@ -67,7 +67,6 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
-          cd ${{ matrix.repository }}
           pnpm install
           pnpm run build
         env:
