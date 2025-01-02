@@ -112,32 +112,3 @@ jobs:
           zip -r "$id.zip" .
 
           echo "::notice::Successfully built plugin."
-
-      - name: Upload plugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.copy-files-to-dist.outputs.id }}  # Correct reference here
-          path: dist/${{ steps.copy-files-to-dist.outputs.id }}.zip
-
-  release:
-    runs-on: ubuntu-latest
-    needs: make  # Ensure this job runs after the "build" job
-    if: ${{ always() }} 
-    steps:
-      - name: Download assets from the previous job
-        run: |
-          # Fetch the run ID of the previous job using the GitHub API
-          RUN_ID=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs" \
-              | jq -r '.workflow_runs[0].id')
-
-          # List the assets from the previous workflow run
-          ASSETS=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/assets" \
-              | jq -r '.[].url')
-
-          # Download each asset using curl
-          for ASSET_URL in $ASSETS; do
-            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -o "asset.zip" "$ASSET_URL"
-          done
