@@ -78,6 +78,7 @@ jobs:
 
       - name: Copy files to dist
         run: |
+
           mkdir -p dist
           ls -R
           pwd
@@ -88,15 +89,17 @@ jobs:
           cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
           cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
 
+          # Extract the 'backend' value and copy if it exists
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
-            cp -r "$backend" ../../dist/"$backend"
+            cp -r "$backend" ./dist/"$backend"
           fi
 
-          include=$(jq -r '.include | join(" ")' plugin.json)
+          # Extract the 'include' value, handle null or missing, and copy if any files exist
+          include=$(jq -r '.include // empty' plugin.json)
           if [ -n "$include" ]; then
             for file in $include; do
-              cp -r "$file" ../../dist/"$file"
+              cp -r "$file" ./dist/"$file"
             done
           fi
 
