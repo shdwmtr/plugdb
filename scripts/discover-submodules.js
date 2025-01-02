@@ -1,5 +1,7 @@
 const { execSync } = require('child_process');
 
+// log current directory
+console.log('Current directory:', execSync('pwd').toString().trim());
 let json = [];
 
 try {
