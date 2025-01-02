@@ -1,5 +1,4 @@
 const { execSync } = require('child_process');
-const fs = require('fs');
 
 let json = [];
 
@@ -20,4 +19,4 @@ catch (error) {
     console.error('Error processing submodules:', error);
 }
 
-fs.writeFileSync('submodules.json', JSON.stringify(json, null, 4));
+console.log(JSON.stringify(json, null, 4));
