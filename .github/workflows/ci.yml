@@ -129,12 +129,12 @@ jobs:
         run: |
           echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
           gcloud auth activate-service-account --key-file=gcloud-key.json
-          gcloud config set project [YOUR_PROJECT_ID]
+          gcloud config set project steam-brew
 
       # Step 4: Upload a file to GCS
       - name: Upload file to GCS
         run: |
           echo "This is a test file" > test-file.txt
-          gsutil cp test-file.txt gs://[YOUR_BUCKET_NAME]/path/in/bucket/
+          gsutil cp test-file.txt gs://steam-brew.firebasestorage.app/test-file.txt
 
       
