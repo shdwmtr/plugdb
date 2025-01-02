@@ -82,10 +82,10 @@ jobs:
           ls -R
           pwd
 
-          cp -r "plugin.json" dist/plugin.json
-          cp -r "requirements.txt" dist/requirements.txt || true
-          cp -r "README.md" dist/README.md || true
-          cp -r "README" dist/README || true
+          cp -r "plugin.json" dist/plugin.json || echo "::error::plugin.json not found, it is required to build the plugin."
+          cp -r "requirements.txt" dist/requirements.txt || echo "::warning::requirements.txt not found, skipping."
+          cp -r "README.md" dist/README.md || echo "::warning::README.md not found, skipping."
+          cp -r "README" dist/README || echo "::warning::README not found, skipping."
 
           backend=$(jq -r '.backend' plugin.json)
           if [ "$backend" != "null" ]; then
