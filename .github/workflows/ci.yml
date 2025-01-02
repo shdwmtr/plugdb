@@ -68,6 +68,11 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
+          repo_name="${{ matrix.repository }}"
+          repo_name=${repo_name##*/}  # Extract the repo name
+          echo "Processing plugin: $repo_name"
+          cd "$repo_name"
+
           pwd
           pnpm install
           pnpm run build
