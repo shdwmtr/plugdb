@@ -4,7 +4,10 @@ let json = [];
 
 try {
     const submoduleNames = execSync('git submodule foreach --quiet "echo $name"').toString().split('\n').filter(Boolean);
+    console.log('submoduleNames:', submoduleNames)
+
     const topLevelDir = execSync('git rev-parse --show-toplevel').toString().trim();
+    console.log('topLevelDir:', topLevelDir)
 
     submoduleNames.forEach((name) => {
         const url = execSync(`git config --file ${topLevelDir}/.gitmodules submodule.${name}.url`).toString().trim();
