@@ -90,13 +90,17 @@ jobs:
             cp -r "$backend" ./dist/"$backend"
           fi
 
-          include=$(jq -r '.include // []' plugin.json)
+          include=$(jq -r '.include // [] | .[]' plugin.json)
 
-          echo "::notice::Including additional files: $include"
-
-          for file in $include; do
-            cp -r ./$file ./dist/$file
-          done
+          if [ -z "$include" ]; then
+            echo "::notice::No additional files to include."
+          else
+            echo "::notice::Including additional files: $include"
+            for item in $include; do
+              echo "Processing $item"
+              cp -r "./$item" "./dist/$item"
+            done
+          fi
 
           echo "::notice::Computing plugin metadata..."
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
