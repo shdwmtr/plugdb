@@ -73,15 +73,19 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install dependencies and build plugin
+      - name: Install Dependencies
         run: |
-          ls -R
           pnpm install
+        env:
+          NODE_ENV: production
+
+      - name: Build Plugin
+        run: |
           pnpm run build
         env:
           NODE_ENV: production
 
-      - name: Prepare distribution files
+      - name: Prepare Distribution Files
         run: |
 
           mkdir -p dist
