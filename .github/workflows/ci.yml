@@ -70,7 +70,7 @@ jobs:
         run: |
           # list recursively all files and directories in the current directory
           ls -R
-          
+
           pnpm install
           pnpm run build
         env:
@@ -79,10 +79,11 @@ jobs:
       - name: Copy files to dist
         run: |
           mkdir -p dist
+          ls -R
           pwd
 
           cp -r "plugin.json" dist/plugin.json
-          cp -r "requirements.txt" dist/requirements.txt
+          cp -r "requirements.txt" dist/requirements.txt || true
           cp -r "README.md" dist/README.md || true
           cp -r "README" dist/README || true
 
