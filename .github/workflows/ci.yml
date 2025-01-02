@@ -68,6 +68,7 @@ jobs:
 
       - name: Install dependencies and build plugin
         run: |
+          pwd
           pnpm install
           pnpm run build
         env:
