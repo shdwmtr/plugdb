@@ -113,17 +113,24 @@ jobs:
           name: ${{ steps.copy-files-to-dist.outputs.id }}  # Correct reference here
           path: dist/${{ steps.copy-files-to-dist.outputs.id }}.zip
 
-  finalize:
-    needs: process-plugin
+  download:
     runs-on: ubuntu-latest
-    if: ${{ always() }} 
+    needs: build  # Ensure this job runs after the "build" job
     steps:
-      - name: List built plugins
-        run: ls -R
-
-      - name: Run Semantic Release
+      - name: Download assets from the previous job
         run: |
-          pnpm install --save-dev semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
-          npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fetch the run ID of the previous job using the GitHub API
+          RUN_ID=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs" \
+              | jq -r '.workflow_runs[0].id')
+
+          # List the assets from the previous workflow run
+          ASSETS=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID/assets" \
+              | jq -r '.[].url')
+
+          # Download each asset using curl
+          for ASSET_URL in $ASSETS; do
+            curl -L -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -o "asset.zip" "$ASSET_URL"
+          done
