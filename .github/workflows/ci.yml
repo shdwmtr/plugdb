@@ -101,9 +101,18 @@ jobs:
           cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
           cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
 
-          backend=$(jq -r '.backend' plugin.json)
-          if [ "$backend" != "null" ]; then
-            cp -r "$backend" ./dist/"$backend"
+          BACKEND_DIR=$(jq -r '.backend' plugin.json)
+          if [ "$BACKEND_DIR" != "null" ]; then
+            cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
+          else 
+            cp -r "backend" ./dist/backend
+          fi
+
+          FRONTEND_DIR=$(jq -r '.frontend' plugin.json)
+          if [ "$FRONTEND_DIR" != "null" ]; then
+            cp -r "$FRONTEND_DIR" ./dist/"$FRONTEND_DIR"
+          else 
+            cp -r "frontend" ./dist/frontend
           fi
 
           include=$(jq -r '.include // [] | .[]' plugin.json)
