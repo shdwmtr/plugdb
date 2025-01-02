@@ -41,7 +41,8 @@ jobs:
           cat transformed-submodules.json
 
           # Set the output for the submodule matrix
-          echo "::setOutput name=submodule-matrix::$(cat transformed-submodules.json)"
+          echo "submodule-matrix=$(cat transformed-submodules.json)" >> $GITHUB_OUTPUT
+
 
   make:
     needs: prepare
@@ -131,8 +132,8 @@ jobs:
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
           id=$(jq -r '.id' dist/metadata.json)
-          echo "::setOutput name=id::$id"  # Set the id as an output variable
-
+          echo "id=$id" >> $GITHUB_OUTPUT
+          
           cd dist
           echo "::notice::Building plugin archive..."
           zip -r "$id.zip" .
