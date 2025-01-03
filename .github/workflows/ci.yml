@@ -110,6 +110,7 @@ jobs:
           NODE_ENV: production
 
       - name: Prepare Distribution Files
+        id: prepare-distribution
         run: |
 
           mkdir -p dist
@@ -161,6 +162,12 @@ jobs:
           echo "::notice::Uploading plugin to database..."
           gsutil cp "$id.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
           echo "::notice::Successfully uploaded plugin to database."
+
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.prepare-distribution.outputs.id }}
+          path: dist/${{ steps.prepare-distribution.outputs.id }}.zip
 
 
       
