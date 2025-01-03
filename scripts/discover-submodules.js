@@ -1,12 +1,8 @@
 const { execSync } = require('child_process');
-
 let json = [];
 
 try {
-    const submodules = execSync('git submodule')
-        .toString()
-        .split('\n')
-        .filter(Boolean);
+    const submodules = execSync('git submodule').toString().split('\n').filter(Boolean);
 
     submodules.forEach((line) => {
         const [, , name] = line.split(' ');
@@ -17,7 +13,8 @@ try {
 
         json.push(`${owner}/${repo}`);
     });
-} catch (error) {
+} 
+catch (error) {
     console.error('Error processing submodules:', error);
 }
 
