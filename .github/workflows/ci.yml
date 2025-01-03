@@ -45,9 +45,17 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Stage the changes
           git add metadata.json
-          git commit -m "chore: Add plugin metadata"
-          git push
+
+          # Commit only if there are changes
+          if git commit -m "chore: Add plugin metadata"; then
+            # Push only if the commit succeeded
+            git push
+          else
+            echo "::notice::No changes to commit."
+          fi
 
   make:
     needs: prepare
