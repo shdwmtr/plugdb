@@ -54,7 +54,7 @@ jobs:
             # Push only if the commit succeeded
             git push
           else
-            echo "::notice::No changes to commit."
+            echo "::debug::No changes to commit."
           fi
 
   make:
@@ -117,37 +117,37 @@ jobs:
           
           cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
+          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::info::requirements.txt not found, skipping."
+          cp "README.md" dist/README.md 2>/dev/null || echo "::info::README.md not found, skipping."
+          cp "README" dist/README 2>/dev/null || echo "::info::README not found, skipping."
 
           BACKEND_DIR=$(jq -r '.backend' plugin.json)
           if [ "$BACKEND_DIR" != "null" ]; then
             cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
           else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::warning::backend directory not found, skipping."
+            cp -r "backend" ./dist/backend 2>/dev/null || echo "::info::backend directory not found, skipping."
           fi
 
           FRONTEND_DIR=$(jq -r '.frontend' plugin.json)
           if [ "$FRONTEND_DIR" != "null" ]; then
             cp -r "$FRONTEND_DIR" ./dist/"$FRONTEND_DIR"
           else 
-            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::warning::frontend directory not found, skipping."
+            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::info::frontend directory not found, skipping."
           fi
 
           include=$(jq -r '.include // [] | .[]' plugin.json)
 
           if [ -z "$include" ]; then
-            echo "::notice::No additional files to include."
+            echo "::debug::No additional files to include."
           else
-            echo "::notice::Including additional files: $include"
+            echo "::debug::Including additional files: $include"
             for item in $include; do
               mkdir -p "./dist/$(dirname "$item")"
               cp -r "./$item" "./dist/$item"
             done
           fi
 
-          echo "::notice::Computing plugin metadata..."
+          echo "::debug::Computing plugin metadata..."
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
           id=$(jq -r '.id' dist/metadata.json)
@@ -157,14 +157,14 @@ jobs:
           echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
 
           cd dist
-          echo "::notice::Building plugin archive..."
+          echo "::debug::Building plugin archive..."
           zip -r "$REPOSITORY_NAME.zip" .
 
-          echo "::notice::Successfully built plugin."
+          echo "::debug::Successfully built plugin."
 
-          echo "::notice::Uploading plugin to database..."
+          echo "::debug::Uploading plugin to database..."
           gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::notice::Successfully uploaded plugin to database."
+          echo "::debug::Successfully uploaded plugin to database."
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
