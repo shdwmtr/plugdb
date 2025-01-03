@@ -117,22 +117,22 @@ jobs:
           
           cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::info::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::info::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::info::README not found, skipping."
+          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::debug::requirements.txt not found, skipping."
+          cp "README.md" dist/README.md 2>/dev/null || echo "::debug::README.md not found, skipping."
+          cp "README" dist/README 2>/dev/null || echo "::debug::README not found, skipping."
 
           BACKEND_DIR=$(jq -r '.backend' plugin.json)
           if [ "$BACKEND_DIR" != "null" ]; then
             cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
           else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::info::backend directory not found, skipping."
+            cp -r "backend" ./dist/backend 2>/dev/null || echo "::debug::backend directory not found, skipping."
           fi
 
           FRONTEND_DIR=$(jq -r '.frontend' plugin.json)
           if [ "$FRONTEND_DIR" != "null" ]; then
             cp -r "$FRONTEND_DIR" ./dist/"$FRONTEND_DIR"
           else 
-            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::info::frontend directory not found, skipping."
+            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::debug::frontend directory not found, skipping."
           fi
 
           include=$(jq -r '.include // [] | .[]' plugin.json)
