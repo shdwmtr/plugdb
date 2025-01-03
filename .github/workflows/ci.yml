@@ -151,16 +151,19 @@ jobs:
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
           id=$(jq -r '.id' dist/metadata.json)
-          echo "id=$id" >> $GITHUB_OUTPUT
+          
+          # Get repository name from the matrix
+          REPOSITORY_NAME=$(echo ${{ matrix.repository }} | cut -d'/' -f2)
+          echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
 
           cd dist
           echo "::notice::Building plugin archive..."
-          zip -r "$id.zip" .
+          zip -r "$REPOSITORY_NAME.zip" .
 
           echo "::notice::Successfully built plugin."
 
           echo "::notice::Uploading plugin to database..."
-          gsutil cp "$id.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
           echo "::notice::Successfully uploaded plugin to database."
 
       - name: Upload Plugin Artifact
