@@ -1,9 +1,9 @@
-> [!NOTE]
-> This repository solely exists for developers to submit plugins.
-> 
-> Download & install plugins from https://steambrew.app/plugins
 
 ## Plugin Database
+
+> [!NOTE]
+> This repository solely exists for developers to submit plugins.
+> Download & install plugins from https://steambrew.app/plugins
 
 ### Submitting A Plugin
 
