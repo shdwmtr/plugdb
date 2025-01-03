@@ -1,18 +1,15 @@
-name: CI
+name: Test Build
 
 on:
   pull_request:
-    types:
-      - closed
+    types: 
+      - opened
   workflow_dispatch:
 
 jobs:
-  prepare:
+  test-build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
-    outputs:
-      submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -25,53 +22,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Discover submodules
-        id: discover-submodules
-        run: |
-          sudo node ./scripts/discover-submodules.js > submodules.json
-          cat submodules.json
-
-          echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
-
-  make:
-    needs: prepare
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ matrix.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-
-      - name: Install Database SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
-
-      - name: Authenticate to Database
-        env:
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
-          gcloud auth activate-service-account --key-file=gcloud-key.json
-          gcloud config set project steam-brew
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -92,7 +42,7 @@ jobs:
         run: |
 
           mkdir -p dist
-          
+
           cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
           cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
@@ -128,17 +78,16 @@ jobs:
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
           id=$(jq -r '.id' dist/metadata.json)
-          echo "id=$id" >> $GITHUB_OUTPUT
 
           cd dist
           echo "::notice::Building plugin archive..."
-          zip -r "$id.zip" .
+          zip -r build.zip .
 
           echo "::notice::Successfully built plugin."
 
-          echo "::notice::Uploading plugin to database..."
-          gsutil cp "$id.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::notice::Successfully uploaded plugin to database."
+      - name: Upload Plugin
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: dist/build.zip
 
-
-      
