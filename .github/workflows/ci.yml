@@ -133,6 +133,7 @@ jobs:
           else
             echo "::notice::Including additional files: $include"
             for item in $include; do
+              mkdir -p "./dist/$(dirname "$item")"
               cp -r "./$item" "./dist/$item"
             done
           fi
