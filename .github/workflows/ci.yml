@@ -58,11 +58,12 @@ jobs:
         repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ${{ matrix.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          submodules: recursive
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
