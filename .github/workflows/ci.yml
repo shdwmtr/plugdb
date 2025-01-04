@@ -128,13 +128,6 @@ jobs:
             cp -r "backend" ./dist/backend 2>/dev/null || echo "::debug::backend directory not found, skipping."
           fi
 
-          FRONTEND_DIR=$(jq -r '.frontend' plugin.json)
-          if [ "$FRONTEND_DIR" != "null" ]; then
-            cp -r "$FRONTEND_DIR" ./dist/"$FRONTEND_DIR"
-          else 
-            cp -r "frontend" ./dist/frontend 2>/dev/null || echo "::debug::frontend directory not found, skipping."
-          fi
-
           include=$(jq -r '.include // [] | .[]' plugin.json)
 
           if [ -z "$include" ]; then
