@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
     types:
-      - closed
+      - opened
+      - synchronize
+      - reopened
   push:
     branches:
       - main
@@ -12,7 +14,6 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
     outputs:
       submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
@@ -78,7 +79,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Run Database code
+        if: github.event_name != 'pull_request' && github.event.action != 'closed' && github.event.repository.fork == false
+        env:
+          UPLOAD_TO_DATABASE: true
+        run:
+          echo "Running database code"
+
       - name: Install Database SDK
+        if: env.UPLOAD_TO_DATABASE
         run: |
           sudo apt-get update
           sudo apt-get install apt-transport-https ca-certificates gnupg curl
@@ -87,6 +96,7 @@ jobs:
           sudo apt-get update && sudo apt-get install google-cloud-cli
 
       - name: Authenticate to Database
+        if: env.UPLOAD_TO_DATABASE
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: |
@@ -111,6 +121,8 @@ jobs:
 
       - name: Prepare Distribution Files
         id: prepare-distribution
+        env:
+          UPLOAD_TO_DATABASE: ${{ env.UPLOAD_TO_DATABASE }}
         run: |
 
           mkdir -p dist
@@ -155,9 +167,11 @@ jobs:
 
           echo "::debug::Successfully built plugin."
 
-          echo "::debug::Uploading plugin to database..."
-          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::debug::Successfully uploaded plugin to database."
+          if [ "${UPLOAD_TO_DATABASE}" = "true" ]; then
+            echo "::debug::Uploading plugin to database..."
+            gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+            echo "::debug::Successfully uploaded plugin to database."
+          fi
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
