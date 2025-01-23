@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
-    name: ${{ matrix.submodules.repository }}
+    name: Build (${{ matrix.submodules.repository }})
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
