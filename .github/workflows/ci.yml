@@ -19,7 +19,7 @@ jobs:
       submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           persist-credentials: true
@@ -43,6 +43,7 @@ jobs:
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
 
       - name: Commit Metadata
+        if: github.event_name != 'pull_request' && github.event.repository.fork == false
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
