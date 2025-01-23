@@ -1,5 +1,5 @@
 const { execSync } = require('child_process');
-let json = [];
+let json = {matrix: []};
 
 try {
     const submodules = execSync('git submodule').toString().split('\n').filter(Boolean);
@@ -11,7 +11,7 @@ try {
         const owner = url.replace(/https:\/\/github.com\/([^\/]+)\/.*/, '$1');
         const repo = url.replace(/https:\/\/github.com\/[^\/]+\/([^\/]+).*/, '$1').replace(/\.git$/, '');
 
-        json.push({repository: `${owner}/${repo}`, sha: sha});
+        json.matrix.push({repository: `${owner}/${repo}`, sha: sha});
     });
 } 
 catch (error) {
