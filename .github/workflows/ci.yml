@@ -68,8 +68,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repository }}
-          ref: ${{ matrix.sha }}
+          repository: ${{ matrix.matrix.repository }}
+          ref: ${{ matrix.matrix.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           submodules: recursive
