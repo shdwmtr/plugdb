@@ -158,7 +158,7 @@ jobs:
           id=$(jq -r '.id' dist/metadata.json)
           
           # Get repository name from the matrix
-          REPOSITORY_NAME=$(echo ${{ matrix.repository }} | cut -d'/' -f2)
+          REPOSITORY_NAME=$(echo ${{ matrix.matrix.repository }} | cut -d'/' -f2)
           echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
 
           cd dist
