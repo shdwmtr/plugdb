@@ -62,13 +62,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ matrix.repository }}
+          ref: ${{ matrix.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           submodules: recursive

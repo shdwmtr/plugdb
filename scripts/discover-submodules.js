@@ -5,13 +5,13 @@ try {
     const submodules = execSync('git submodule').toString().split('\n').filter(Boolean);
 
     submodules.forEach((line) => {
-        const [, , name] = line.split(' ');
+        const [, sha, name] = line.split(' ');
         const url = execSync(`git config --get submodule.${name}.url`).toString().trim();
 
         const owner = url.replace(/https:\/\/github.com\/([^\/]+)\/.*/, '$1');
         const repo = url.replace(/https:\/\/github.com\/[^\/]+\/([^\/]+).*/, '$1').replace(/\.git$/, '');
 
-        json.push(`${owner}/${repo}`);
+        json.push({repository: `${owner}/${repo}`, sha: sha});
     });
 } 
 catch (error) {
