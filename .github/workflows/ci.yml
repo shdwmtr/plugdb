@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
     types:
-      - closed
+      - opened
+      - synchronize
+      - reopened
   push:
     branches:
       - main
@@ -12,13 +14,12 @@ on:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
     outputs:
       submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
           persist-credentials: true
@@ -42,6 +43,7 @@ jobs:
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
 
       - name: Commit Metadata
+        if: github.event_name != 'pull_request' && github.event.repository.fork == false
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -62,13 +64,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        repository: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
+    name: Build (${{ matrix.submodules.repository }})
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repository }}
+          repository: ${{ matrix.submodules.repository }}
+          ref: ${{ matrix.submodules.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           submodules: recursive
@@ -78,7 +81,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Run Database code
+        if: github.event_name != 'pull_request' && github.event.repository.fork == false
+        env:
+          UPLOAD_TO_DATABASE: true
+        run:
+          echo "Running database code"
+
       - name: Install Database SDK
+        if: env.UPLOAD_TO_DATABASE
         run: |
           sudo apt-get update
           sudo apt-get install apt-transport-https ca-certificates gnupg curl
@@ -87,6 +98,7 @@ jobs:
           sudo apt-get update && sudo apt-get install google-cloud-cli
 
       - name: Authenticate to Database
+        if: env.UPLOAD_TO_DATABASE
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: |
@@ -111,6 +123,8 @@ jobs:
 
       - name: Prepare Distribution Files
         id: prepare-distribution
+        env:
+          UPLOAD_TO_DATABASE: ${{ env.UPLOAD_TO_DATABASE }}
         run: |
 
           mkdir -p dist
@@ -146,7 +160,7 @@ jobs:
           id=$(jq -r '.id' dist/metadata.json)
           
           # Get repository name from the matrix
-          REPOSITORY_NAME=$(echo ${{ matrix.repository }} | cut -d'/' -f2)
+          REPOSITORY_NAME=$(echo ${{ matrix.submodules.repository }} | cut -d'/' -f2)
           echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
 
           cd dist
@@ -155,9 +169,11 @@ jobs:
 
           echo "::debug::Successfully built plugin."
 
-          echo "::debug::Uploading plugin to database..."
-          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::debug::Successfully uploaded plugin to database."
+          if [ "${UPLOAD_TO_DATABASE}" = "true" ]; then
+            echo "::debug::Uploading plugin to database..."
+            gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+            echo "::debug::Successfully uploaded plugin to database."
+          fi
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
