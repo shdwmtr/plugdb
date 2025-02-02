@@ -13,3 +13,6 @@
 [submodule "plugins/augmented-steam"]
 	path = plugins/augmented-steam
 	url = https://github.com/tddebart/AugmentedSteam-Extension-Plugin
+[submodule "plugins/millennium-faceit-stats"]
+	path = plugins/millennium-faceit-stats
+	url = https://github.com/alowave/millennium-faceit-stats
