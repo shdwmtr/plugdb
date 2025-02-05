@@ -10,16 +10,69 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-build:
+  prepare:
     runs-on: ubuntu-latest
 
+    outputs:
+      submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Discover submodules
+        id: discover-submodules
+        run: |
+          sudo node ./scripts/generate-metadata.js
+          sudo node ./scripts/discover-submodules.js > submodules.json
+          cat submodules.json
+
+          echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
+
+      - name: Commit Metadata
+        if: github.event_name != 'pull_request' && github.event.repository.fork == false
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Stage the changes
+          git add metadata.json
+
+          # Commit only if there are changes
+          if git commit -m "chore: Add plugin metadata"; then
+            # Push only if the commit succeeded
+            git push
+          else
+            echo "::debug::No changes to commit."
+          fi
+
+  make:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.submodule-matrix) }}
+    name: Build (${{ matrix.submodules.repository }})
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.submodules.repository }}
+          ref: ${{ matrix.submodules.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           submodules: recursive
 
