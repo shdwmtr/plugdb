@@ -141,5 +141,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: dist/build.zip
+          path: build.zip
 
