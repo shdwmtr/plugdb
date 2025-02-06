@@ -137,9 +137,12 @@ jobs:
 
           echo "::notice::Successfully built plugin."
 
+      - name: Set Plugin Name
+        run: echo "PLUGIN_NAME=$(jq -r '.name' plugin.json)" >> $GITHUB_ENV
+
       - name: Upload Plugin
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: build.zip
+          name: ${{ env.PLUGIN_NAME }}
+          path: dist/build.zip
 
