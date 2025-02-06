@@ -1,18 +1,17 @@
-name: CI
+name: Test Build
 
 on:
   pull_request:
-    types:
-      - closed
-  push:
-    branches:
-      - main
+    types: 
+      - opened
+      - synchronize
+      - reopened
+      
   workflow_dispatch:
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
 
     outputs:
       submodule-matrix: ${{ steps.discover-submodules.outputs.submodule-matrix }}
@@ -21,7 +20,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          persist-credentials: true
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -80,22 +81,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Database SDK
-        run: |
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
-
-      - name: Authenticate to Database
-        env:
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
-          gcloud auth activate-service-account --key-file=gcloud-key.json
-          gcloud config set project steam-brew
-
       - name: Install pnpm
         run: npm install -g pnpm
 
@@ -112,64 +97,49 @@ jobs:
           NODE_ENV: production
 
       - name: Prepare Distribution Files
-        id: prepare-distribution
-        env:
-          UPLOAD_TO_DATABASE: ${{ env.UPLOAD_TO_DATABASE }}
         run: |
 
           mkdir -p dist
-          
+
           cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
           cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::debug::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::debug::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::debug::README not found, skipping."
+          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
+          cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
+          cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
 
           BACKEND_DIR=$(jq -r '.backend' plugin.json)
           if [ "$BACKEND_DIR" != "null" ]; then
             cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
           else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::debug::backend directory not found, skipping."
+            cp -r "backend" ./dist/backend 2>/dev/null || echo "::warning::backend directory not found, skipping."
           fi
 
           include=$(jq -r '.include // [] | .[]' plugin.json)
 
           if [ -z "$include" ]; then
-            echo "::debug::No additional files to include."
+            echo "::notice::No additional files to include."
           else
-            echo "::debug::Including additional files: $include"
+            echo "::notice::Including additional files: $include"
             for item in $include; do
               mkdir -p "./dist/$(dirname "$item")"
               cp -r "./$item" "./dist/$item"
             done
           fi
 
-          echo "::debug::Computing plugin metadata..."
+          echo "::notice::Computing plugin metadata..."
           echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
           id=$(jq -r '.id' dist/metadata.json)
-          
-          # Get repository name from the matrix
-          REPOSITORY_NAME=$(echo ${{ matrix.submodules.repository }} | cut -d'/' -f2)
-          echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
 
           cd dist
-          echo "::debug::Building plugin archive..."
-          zip -r "$REPOSITORY_NAME.zip" .
+          echo "::notice::Building plugin archive..."
+          zip -r build.zip .
 
-          echo "::debug::Successfully built plugin."
+          echo "::notice::Successfully built plugin."
 
-          if [ "${UPLOAD_TO_DATABASE}" = "true" ]; then
-            echo "::debug::Uploading plugin to database..."
-            gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-            echo "::debug::Successfully uploaded plugin to database."
-          fi
-
-      - name: Upload Plugin Artifact
+      - name: Upload Plugin
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.prepare-distribution.outputs.id }}
-          path: dist/${{ steps.prepare-distribution.outputs.id }}.zip
+          name: build
+          path: dist/build.zip
 
-
-      
