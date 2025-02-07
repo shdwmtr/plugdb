@@ -14,4 +14,4 @@ while read -r line; do
     fi
 done < <(git submodule)
 
-jq -n --argjson submodules "[$(IFS=,; echo "${submodules[*]}")]" '{submodules: $submodules}'
+jq -cn --argjson submodules "[$(IFS=,; echo "${submodules[*]}")]" '{submodules: $submodules}'
