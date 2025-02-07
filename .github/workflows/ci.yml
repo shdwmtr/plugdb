@@ -35,8 +35,8 @@ jobs:
       - name: Discover submodules
         id: discover-submodules
         run: |
-          sudo node ./scripts/generate-metadata.js
-          sudo node ./scripts/discover-submodules.js > submodules.json
+          sudo ./scripts/_gen_metadata.js
+          sudo ./scripts/_submodules.sh > submodules.json
           cat submodules.json
 
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
