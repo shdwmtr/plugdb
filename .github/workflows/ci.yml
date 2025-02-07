@@ -113,8 +113,6 @@ jobs:
 
       - name: Prepare Distribution Files
         id: prepare-distribution
-        env:
-          UPLOAD_TO_DATABASE: ${{ env.UPLOAD_TO_DATABASE }}
         run: |
 
           mkdir -p dist
@@ -158,12 +156,6 @@ jobs:
           zip -r "$REPOSITORY_NAME.zip" .
 
           echo "::debug::Successfully built plugin."
-
-          if [ "${UPLOAD_TO_DATABASE}" = "true" ]; then
-            echo "::debug::Uploading plugin to database..."
-            gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-            echo "::debug::Successfully uploaded plugin to database."
-          fi
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4

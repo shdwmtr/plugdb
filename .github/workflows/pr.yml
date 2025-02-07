@@ -133,8 +133,6 @@ jobs:
 
           cd dist
           echo "::notice::Building plugin archive..."
-          zip -r build.zip .
-
           echo "::notice::Successfully built plugin."
 
       - name: Set Plugin Name
@@ -144,5 +142,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}
-          path: dist/build.zip
+          include-hidden-files: true
+          path: dist/
 
