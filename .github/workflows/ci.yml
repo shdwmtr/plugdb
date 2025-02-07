@@ -157,6 +157,10 @@ jobs:
 
           echo "::debug::Successfully built plugin."
 
+          echo "::debug::Uploading plugin to database..."
+          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+          echo "::debug::Successfully uploaded plugin to database."
+
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
