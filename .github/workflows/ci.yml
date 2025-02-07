@@ -35,7 +35,7 @@ jobs:
       - name: Discover submodules
         id: discover-submodules
         run: |
-          sudo bash ./scripts/_gen_metadata.js
+          sudo bash ./scripts/_gen_metadata.sh
           sudo bash ./scripts/_submodules.sh > submodules.json
           cat submodules.json
 
