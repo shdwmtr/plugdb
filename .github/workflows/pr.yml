@@ -36,8 +36,8 @@ jobs:
       - name: Discover submodules
         id: discover-submodules
         run: |
-          sudo node ./scripts/generate-metadata.js
-          sudo node ./scripts/discover-submodules.js > submodules.json
+          sudo bash ./scripts/_gen_metadata.sh
+          sudo bash ./scripts/_submodules.sh > submodules.json
           cat submodules.json
 
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
@@ -133,13 +133,15 @@ jobs:
 
           cd dist
           echo "::notice::Building plugin archive..."
-          zip -r build.zip .
-
           echo "::notice::Successfully built plugin."
+
+      - name: Set Plugin Name
+        run: echo "PLUGIN_NAME=$(jq -r '.name' plugin.json)" >> $GITHUB_ENV
 
       - name: Upload Plugin
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: dist/build.zip
+          name: ${{ env.PLUGIN_NAME }}
+          include-hidden-files: true
+          path: dist/
 

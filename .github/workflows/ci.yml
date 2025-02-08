@@ -35,8 +35,8 @@ jobs:
       - name: Discover submodules
         id: discover-submodules
         run: |
-          sudo node ./scripts/generate-metadata.js
-          sudo node ./scripts/discover-submodules.js > submodules.json
+          sudo bash ./scripts/_gen_metadata.sh
+          sudo bash ./scripts/_submodules.sh > submodules.json
           cat submodules.json
 
           echo "submodule-matrix=$(cat submodules.json)" >> $GITHUB_OUTPUT
@@ -113,8 +113,6 @@ jobs:
 
       - name: Prepare Distribution Files
         id: prepare-distribution
-        env:
-          UPLOAD_TO_DATABASE: ${{ env.UPLOAD_TO_DATABASE }}
         run: |
 
           mkdir -p dist
@@ -159,11 +157,9 @@ jobs:
 
           echo "::debug::Successfully built plugin."
 
-          if [ "${UPLOAD_TO_DATABASE}" = "true" ]; then
-            echo "::debug::Uploading plugin to database..."
-            gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-            echo "::debug::Successfully uploaded plugin to database."
-          fi
+          echo "::debug::Uploading plugin to database..."
+          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+          echo "::debug::Successfully uploaded plugin to database."
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
