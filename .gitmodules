@@ -16,3 +16,6 @@
 [submodule "plugins/millennium-faceit-stats"]
 	path = plugins/millennium-faceit-stats
 	url = https://github.com/alowave/millennium-faceit-stats
+[submodule "plugins/aerothemesteam"]
+	path = plugins/aerothemesteam
+	url = https://github.com/ricewind012/aerothemesteam
