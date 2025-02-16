@@ -19,3 +19,6 @@
 [submodule "plugins/aerothemesteam"]
 	path = plugins/aerothemesteam
 	url = https://github.com/ricewind012/aerothemesteam
+[submodule "plugins/achievement-groups"]
+	path = plugins/achievement-groups
+	url = https://github.com/tddebart/SteamHunter-plugin
