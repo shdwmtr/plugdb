@@ -9,10 +9,10 @@
 	url = https://github.com/AdamRaichu/auto-accept-custom-launch-args
 [submodule "plugins/steamdb"]
 	path = plugins/steamdb
-	url = https://github.com/tddebart/Steam-SteamDB-extension
+	url = https://github.com/BossSloth/Steam-SteamDB-extension
 [submodule "plugins/augmented-steam"]
 	path = plugins/augmented-steam
-	url = https://github.com/tddebart/AugmentedSteam-Extension-Plugin
+	url = https://github.com/BossSloth/AugmentedSteam-Extension-Plugin
 [submodule "plugins/millennium-faceit-stats"]
 	path = plugins/millennium-faceit-stats
 	url = https://github.com/alowave/millennium-faceit-stats
@@ -21,4 +21,4 @@
 	url = https://github.com/ricewind012/aerothemesteam
 [submodule "plugins/achievement-groups"]
 	path = plugins/achievement-groups
-	url = https://github.com/tddebart/SteamHunter-plugin
+	url = https://github.com/BossSloth/SteamHunter-plugin
