@@ -1,6 +1,3 @@
-[submodule "plugins/MicaForSteam"]
-	path = plugins/MicaForSteam
-	url = https://github.com/ShadowMonster99/MicaForSteam.git
 [submodule "plugins/steam-browser-history"]
 	path = plugins/steam-browser-history
 	url = https://github.com/ricewind012/steam-browser-history
@@ -22,3 +19,6 @@
 [submodule "plugins/achievement-groups"]
 	path = plugins/achievement-groups
 	url = https://github.com/BossSloth/SteamHunter-plugin
+[submodule "plugins/dwmx"]
+	path = plugins/dwmx
+	url = https://github.com/shdwmtr/dwmx
