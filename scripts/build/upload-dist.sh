@@ -11,7 +11,7 @@ echo "::debug::Successfully built plugin."
 id=$(jq -r '.id' "$PLUGIN_NAME"/metadata.json)
 
 echo "::debug::Uploading plugin to database..."
-#gsutil cp "$PLUGIN_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
+gsutil cp "$PLUGIN_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
 echo "::debug::Successfully uploaded plugin to database."
 rm "$PLUGIN_NAME.zip"
 
