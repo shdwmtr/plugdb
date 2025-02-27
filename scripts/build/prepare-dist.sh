@@ -31,7 +31,7 @@ log_message() {
 
 mkdir -p dist
 
-cp -r ".millennium" dist/.millennium 2>/dev/null || log_message "error" ".millennium directory not found, it is required to run the plugin."
+cp -r ".millennium" dist/.millennium 2>/dev/null || { log_message "error" ".millennium directory not found, it is required to run the plugin."; exit 1; }
 cp "plugin.json" dist/plugin.json 2>/dev/null || { log_message "error" "plugin.json was not found. It is required for plugins to have."; exit 1; }
 cp "requirements.txt" dist/requirements.txt 2>/dev/null || log_message "warning" "requirements.txt not found, skipping."
 cp "PLUGIN.md" dist/README.md 2>/dev/null || cp "README.md" dist/README.md 2>/dev/null || cp "README" dist/README 2>/dev/null || log_message "warning" "README.md or PLUGIN.md not found, skipping."
