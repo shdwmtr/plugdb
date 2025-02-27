@@ -46,6 +46,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-google-cloud-sdk-
 
+      - name: Upload Build Scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-scripts
+          path: scripts/build/
+          retention-days: 1
+
       - name: Discover submodules
         id: discover-submodules
         run: |
@@ -114,6 +121,12 @@ jobs:
           echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
           gcloud auth activate-service-account --key-file=gcloud-key.json
           gcloud config set project steam-brew
+
+      - name: Download Build Scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-scripts
+          path: scripts/build/
 
       - name: Install pnpm
         run: npm install -g pnpm

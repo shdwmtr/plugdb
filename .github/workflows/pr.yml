@@ -25,13 +25,12 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Upload Build Scripts
+        uses: actions/upload-artifact@v4
         with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          name: build-scripts
+          path: scripts/build/
+          retention-days: 1
 
       - name: Discover submodules
         id: discover-submodules
@@ -75,6 +74,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           submodules: recursive
+
+      - name: Download Build Scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-scripts
+          path: scripts/build/
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
