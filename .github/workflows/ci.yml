@@ -114,58 +114,14 @@ jobs:
       - name: Prepare Distribution Files
         id: prepare-distribution
         run: |
-
-          mkdir -p dist
-          
-          cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
-          cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::debug::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::debug::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::debug::README not found, skipping."
-
-          BACKEND_DIR=$(jq -r '.backend' plugin.json)
-          if [ "$BACKEND_DIR" != "null" ]; then
-            cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
-          else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::debug::backend directory not found, skipping."
-          fi
-
-          include=$(jq -r '.include // [] | .[]' plugin.json)
-
-          if [ -z "$include" ]; then
-            echo "::debug::No additional files to include."
-          else
-            echo "::debug::Including additional files: $include"
-            for item in $include; do
-              mkdir -p "./dist/$(dirname "$item")"
-              cp -r "./$item" "./dist/$item"
-            done
-          fi
-
-          echo "::debug::Computing plugin metadata..."
-          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
-
-          id=$(jq -r '.id' dist/metadata.json)
-          
-          # Get repository name from the matrix
-          REPOSITORY_NAME=$(echo ${{ matrix.submodules.repository }} | cut -d'/' -f2)
-          echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
-
-          cd dist
-          echo "::debug::Building plugin archive..."
-          zip -r "$REPOSITORY_NAME.zip" .
-
-          echo "::debug::Successfully built plugin."
-
-          echo "::debug::Uploading plugin to database..."
-          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::debug::Successfully uploaded plugin to database."
+          bash ./scripts/build/prepare-dist.sh --silent
+          bash ./scripts/build/upload-dist.sh
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.prepare-distribution.outputs.id }}
-          path: dist/${{ steps.prepare-distribution.outputs.id }}.zip
+          name: ${{ env.PLUGIN_NAME }}
+          path: dist/
 
 
       

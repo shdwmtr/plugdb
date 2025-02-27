@@ -97,46 +97,7 @@ jobs:
           NODE_ENV: production
 
       - name: Prepare Distribution Files
-        run: |
-
-          mkdir -p dist
-
-          cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
-          cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::warning::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::warning::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::warning::README not found, skipping."
-
-          BACKEND_DIR=$(jq -r '.backend' plugin.json)
-          if [ "$BACKEND_DIR" != "null" ]; then
-            cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
-          else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::warning::backend directory not found, skipping."
-          fi
-
-          include=$(jq -r '.include // [] | .[]' plugin.json)
-
-          if [ -z "$include" ]; then
-            echo "::notice::No additional files to include."
-          else
-            echo "::notice::Including additional files: $include"
-            for item in $include; do
-              mkdir -p "./dist/$(dirname "$item")"
-              cp -r "./$item" "./dist/$item"
-            done
-          fi
-
-          echo "::notice::Computing plugin metadata..."
-          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
-
-          id=$(jq -r '.id' dist/metadata.json)
-
-          cd dist
-          echo "::notice::Building plugin archive..."
-          echo "::notice::Successfully built plugin."
-
-      - name: Set Plugin Name
-        run: echo "PLUGIN_NAME=$(jq -r '.name' plugin.json)" >> $GITHUB_ENV
+        run: bash ./scripts/build/prepare-dist.sh
 
       - name: Upload Plugin
         uses: actions/upload-artifact@v4
@@ -144,4 +105,3 @@ jobs:
           name: ${{ env.PLUGIN_NAME }}
           include-hidden-files: true
           path: dist/
-
