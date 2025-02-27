@@ -24,13 +24,27 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
+      - name: Install Database SDK
+        id: install-db-sdk
+        run: |
+          sudo apt-get update
+          sudo apt-get install apt-transport-https ca-certificates gnupg curl
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update && sudo apt-get install google-cloud-cli
+          
+          # Create a directory to cache the SDK installation
+          mkdir -p ~/.google-cloud-sdk
+          cp -r /usr/lib/google-cloud-sdk/* ~/.google-cloud-sdk/
+          echo "sdk-path=$(realpath ~/.google-cloud-sdk)" >> $GITHUB_OUTPUT
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Cache Database SDK
+        uses: actions/cache@v3
+        with:
+          path: ~/.google-cloud-sdk
+          key: ${{ runner.os }}-google-cloud-sdk-${{ hashFiles('**/google-cloud-sdk/**') }}
+          restore-keys: |
+            ${{ runner.os }}-google-cloud-sdk-
 
       - name: Discover submodules
         id: discover-submodules
@@ -80,13 +94,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Database SDK
+      - name: Restore Database SDK from Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.google-cloud-sdk
+          key: ${{ runner.os }}-google-cloud-sdk-${{ hashFiles('**/google-cloud-sdk/**') }}
+          restore-keys: |
+            ${{ runner.os }}-google-cloud-sdk-
+
+      - name: Setup Database SDK Path
         run: |
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
+          echo "PATH=$PATH:~/.google-cloud-sdk/bin" >> $GITHUB_ENV
+          gcloud --version
 
       - name: Authenticate to Database
         env:
@@ -122,6 +141,3 @@ jobs:
         with:
           name: ${{ env.PLUGIN_NAME }}
           path: dist/
-
-
-      
