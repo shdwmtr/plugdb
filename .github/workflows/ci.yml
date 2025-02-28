@@ -24,13 +24,34 @@ jobs:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
+      - name: Install Database SDK
+        id: install-db-sdk
+        run: |
+          sudo apt-get update
+          sudo apt-get install apt-transport-https ca-certificates gnupg curl
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update && sudo apt-get install google-cloud-cli
+          
+          # Create a directory to cache the SDK installation
+          mkdir -p ~/.google-cloud-sdk
+          cp -r /usr/lib/google-cloud-sdk/* ~/.google-cloud-sdk/
+          echo "sdk-path=$(realpath ~/.google-cloud-sdk)" >> $GITHUB_OUTPUT
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Cache Database SDK
+        uses: actions/cache@v3
+        with:
+          path: ~/.google-cloud-sdk
+          key: ${{ runner.os }}-google-cloud-sdk-${{ hashFiles('**/google-cloud-sdk/**') }}
+          restore-keys: |
+            ${{ runner.os }}-google-cloud-sdk-
+
+      - name: Upload Build Scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-scripts
+          path: scripts/build/
+          retention-days: 1
 
       - name: Discover submodules
         id: discover-submodules
@@ -80,13 +101,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Database SDK
+      - name: Restore Database SDK from Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.google-cloud-sdk
+          key: ${{ runner.os }}-google-cloud-sdk-${{ hashFiles('**/google-cloud-sdk/**') }}
+          restore-keys: |
+            ${{ runner.os }}-google-cloud-sdk-
+
+      - name: Setup Database SDK Path
         run: |
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates gnupg curl
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-          sudo apt-get update && sudo apt-get install google-cloud-cli
+          echo "PATH=$PATH:~/.google-cloud-sdk/bin" >> $GITHUB_ENV
+          gcloud --version
 
       - name: Authenticate to Database
         env:
@@ -95,6 +121,12 @@ jobs:
           echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
           gcloud auth activate-service-account --key-file=gcloud-key.json
           gcloud config set project steam-brew
+
+      - name: Download Build Scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-scripts
+          path: scripts/build/
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -114,58 +146,11 @@ jobs:
       - name: Prepare Distribution Files
         id: prepare-distribution
         run: |
-
-          mkdir -p dist
-          
-          cp -r ".millennium" dist/.millennium 2>/dev/null || echo "::error::.millennium directory not found, it is required to run the plugin."
-          cp "plugin.json" dist/plugin.json 2>/dev/null || { echo "::error::plugin.json was not found. It is required for plugins to have."; exit 1; }
-          cp "requirements.txt" dist/requirements.txt 2>/dev/null || echo "::debug::requirements.txt not found, skipping."
-          cp "README.md" dist/README.md 2>/dev/null || echo "::debug::README.md not found, skipping."
-          cp "README" dist/README 2>/dev/null || echo "::debug::README not found, skipping."
-
-          BACKEND_DIR=$(jq -r '.backend' plugin.json)
-          if [ "$BACKEND_DIR" != "null" ]; then
-            cp -r "$BACKEND_DIR" ./dist/"$BACKEND_DIR"
-          else 
-            cp -r "backend" ./dist/backend 2>/dev/null || echo "::debug::backend directory not found, skipping."
-          fi
-
-          include=$(jq -r '.include // [] | .[]' plugin.json)
-
-          if [ -z "$include" ]; then
-            echo "::debug::No additional files to include."
-          else
-            echo "::debug::Including additional files: $include"
-            for item in $include; do
-              mkdir -p "./dist/$(dirname "$item")"
-              cp -r "./$item" "./dist/$item"
-            done
-          fi
-
-          echo "::debug::Computing plugin metadata..."
-          echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
-
-          id=$(jq -r '.id' dist/metadata.json)
-          
-          # Get repository name from the matrix
-          REPOSITORY_NAME=$(echo ${{ matrix.submodules.repository }} | cut -d'/' -f2)
-          echo "id=$REPOSITORY_NAME" >> $GITHUB_OUTPUT
-
-          cd dist
-          echo "::debug::Building plugin archive..."
-          zip -r "$REPOSITORY_NAME.zip" .
-
-          echo "::debug::Successfully built plugin."
-
-          echo "::debug::Uploading plugin to database..."
-          gsutil cp "$REPOSITORY_NAME.zip" gs://millennium-d9ce0.appspot.com/plugins/"$id.zip"
-          echo "::debug::Successfully uploaded plugin to database."
+          bash ./scripts/build/prepare-dist.sh --silent
+          bash ./scripts/build/upload-dist.sh
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.prepare-distribution.outputs.id }}
-          path: dist/${{ steps.prepare-distribution.outputs.id }}.zip
-
-
-      
+          name: ${{ env.PLUGIN_NAME }}
+          path: dist/
