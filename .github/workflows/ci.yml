@@ -145,9 +145,11 @@ jobs:
 
       - name: Prepare Distribution Files
         id: prepare-distribution
-        run: |
-          bash ./scripts/build/prepare-dist.sh --silent
-          bash ./scripts/build/upload-dist.sh ${{ env.PLUGIN_NAME }}
+        run: bash ./scripts/build/prepare-dist.sh --silent
+          
+
+      - name: Upload to database
+        run: bash ./scripts/build/upload-dist.sh ${{ env.PLUGIN_NAME }}
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4

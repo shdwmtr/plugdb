@@ -59,7 +59,7 @@ log_message "notice" "Computing plugin metadata..."
 echo "{\"commit\": \"$(git rev-parse HEAD)\", \"id\": \"$(git rev-list --max-parents=0 HEAD)\"}" > dist/metadata.json
 
 PLUGIN_NAME=$(jq -r '.name' plugin.json) || { log_message "error" "name not found in plugin.json"; exit 1; }
-echo "PLUGIN_NAME=$PLUGIN_NAME" >> "$GITHUB_ENV"
+echo "PLUGIN_NAME=$PLUGIN_NAME" >> $GITHUB_ENV
 
 mkdir -p dist/"$PLUGIN_NAME"
 mv dist/{*,.*} dist/"$PLUGIN_NAME" 2>/dev/null
