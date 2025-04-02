@@ -123,7 +123,7 @@ jobs:
           gcloud config set project steam-brew
 
       - name: Download Build Scripts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.8
         with:
           name: build-scripts
           path: scripts/build/
