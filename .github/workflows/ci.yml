@@ -121,7 +121,7 @@ jobs:
           echo "${GCP_SERVICE_ACCOUNT_KEY}" > gcloud-key.json
           gcloud auth activate-service-account --key-file=gcloud-key.json
           gcloud config set project steam-brew
-          ls scripts ../.. ../../scripts
+          ls ../../plugdb
 
       - name: Download Build Scripts
         uses: actions/download-artifact@v4
