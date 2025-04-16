@@ -22,3 +22,6 @@
 [submodule "plugins/dwmx"]
 	path = plugins/dwmx
 	url = https://github.com/shdwmtr/dwmx
+[submodule "plugins/steam-librarian"]
+	path = plugins/steam-librarian
+	url = https://github.com/luthor112/steam-librarian.git
