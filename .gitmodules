@@ -28,3 +28,6 @@
 [submodule "plugins/steam-easygrid"]
 	path = plugins/steam-easygrid
 	url = https://github.com/luthor112/steam-easygrid.git
+[submodule "plugins/steam-taskbar-progress"]
+	path = plugins/steam-taskbar-progress
+	url = https://github.com/luthor112/steam-taskbar-progress.git
