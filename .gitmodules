@@ -25,3 +25,6 @@
 [submodule "plugins/steam-librarian"]
 	path = plugins/steam-librarian
 	url = https://github.com/luthor112/steam-librarian.git
+[submodule "plugins/steam-easygrid"]
+	path = plugins/steam-easygrid
+	url = https://github.com/luthor112/steam-easygrid.git
