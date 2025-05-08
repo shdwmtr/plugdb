@@ -34,3 +34,6 @@
 [submodule "plugins/steam-logo-pos"]
 	path = plugins/steam-logo-pos
 	url = https://github.com/luthor112/steam-logo-pos.git
+[submodule "plugins/steam-collections-plus"]
+	path = plugins/steam-collections-plus
+	url = https://github.com/luthor112/steam-collections-plus.git
