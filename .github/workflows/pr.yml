@@ -92,6 +92,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pnpm install
+          pnpm update @steambrew/ttc --latest
         env:
           NODE_ENV: production
 
